@@ -1,0 +1,4 @@
+pygments: true
+name: Scala Actors Migration Kit
+description: A Scala library that allows easy migration from Scala Actors to Akka.
+url: http://scala.github.com/actors-migration
