@@ -39,7 +39,7 @@ object Test {
     Await.ready(finishedLWCR1.future, 5 seconds)
 
     // Loop with Condition Snippet - migrated
-    val myAkkaActor = ActorDSL.actor(new StashingActor {
+    val myAkkaActor = ActorDSL.actor(new ActWithStash {
 
       def receive = {
         case x: Int =>
@@ -87,7 +87,7 @@ object Test {
     Await.ready(finishedTNR1.future, 5 seconds)
 
     // Loop with Condition Snippet - migrated
-    val myAkkaActor = ActorDSL.actor(new StashingActor {
+    val myAkkaActor = ActorDSL.actor(new ActWithStash {
 
       def receive = {
         case x: Int =>
@@ -116,7 +116,7 @@ object Test {
 
   def exceptionHandling() = {
     // Stashing actor with act and exception handler
-    val myActor = ActorDSL.actor(new StashingActor {
+    val myActor = ActorDSL.actor(new ActWithStash {
 
       def receive = { case _ => println("Dummy method.") }
       override def act() = {
@@ -145,7 +145,7 @@ object Test {
 
     Await.ready(finishedEH1.future, 5 seconds)
     // Stashing actor in Akka style
-    val myAkkaActor = ActorDSL.actor(new StashingActor {
+    val myAkkaActor = ActorDSL.actor(new ActWithStash {
       def receive = PFCatch({
         case "fail" =>
           throw new Exception("failed")

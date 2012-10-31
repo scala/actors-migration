@@ -8,7 +8,7 @@ import scala.actors._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import scala.collection.mutable.ArrayBuffer
 
-class TestStashingActor extends StashingActor {
+class TestActWithStash extends ActWithStash {
 
   def receive = { case v: Int => Test.append(v); Test.latch.countDown() }
 
@@ -34,7 +34,7 @@ object Test {
     a1 ! 100
 
     // simple instantiation
-    val a2 = ActorDSL.actor(new TestStashingActor)
+    val a2 = ActorDSL.actor(new TestActWithStash)
     a2 ! 200
     toStop += a2
 
@@ -45,14 +45,14 @@ object Test {
     a3 ! 300
 
     // using the manifest
-    val a4 = ActorDSL.actor(new TestStashingActor)
+    val a4 = ActorDSL.actor(new TestActWithStash)
     a4 ! 400
     toStop += a4
 
     // deterministic part of a test
     // creation without actor
     try {
-      val a3 = new TestStashingActor
+      val a3 = new TestActWithStash
       a3 ! -1
     } catch {
       case e: Throwable => println("OK error: " + e)
@@ -61,8 +61,8 @@ object Test {
     // actor double creation
     try {
       val a3 = ActorDSL.actor({
-        new TestStashingActor
-        new TestStashingActor
+        new TestActWithStash
+        new TestActWithStash
       })
       a3 ! -1
     } catch {
@@ -72,9 +72,9 @@ object Test {
     // actor nesting
     try {
       val a5 = ActorDSL.actor({
-        val a6 = ActorDSL.actor(new TestStashingActor)
+        val a6 = ActorDSL.actor(new TestActWithStash)
         toStop += a6
-        new TestStashingActor
+        new TestActWithStash
       })
 
       a5 ! 500

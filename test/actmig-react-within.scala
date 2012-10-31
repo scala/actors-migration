@@ -26,7 +26,7 @@ object Test {
       }
     }
 
-    val myActor = ActorDSL.actor(new StashingActor {
+    val myActor = ActorDSL.actor(new ActWithStash {
       context.setReceiveTimeout(1 millisecond)
       def receive = {
         case ReceiveTimeout =>

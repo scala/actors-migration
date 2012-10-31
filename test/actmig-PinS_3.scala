@@ -14,7 +14,7 @@ object SillyActor {
 
 /* PinS, Listing 32.1: A simple actor
  */
-class SillyActor extends StashingActor {
+class SillyActor extends ActWithStash {
   def receive = { case _ => println("Why are you not dead"); context.stop(self) }
 
   override def preStart() {
@@ -34,7 +34,7 @@ object SeriousActor {
   val ref = ActorDSL.actor(new SeriousActor)
 }
 
-class SeriousActor extends StashingActor {
+class SeriousActor extends ActWithStash {
   def receive = { case _ => println("Nop") }
   override def preStart() {
     Await.ready(SeriousActor.startPromise.future, 5 seconds)
@@ -50,7 +50,7 @@ object NameResolver {
   val ref = ActorDSL.actor(new NameResolver)
 }
 
-class NameResolver extends StashingActor {
+class NameResolver extends ActWithStash {
   import java.net.{ InetAddress, UnknownHostException }
 
   def receive = {
@@ -77,7 +77,7 @@ object Test extends App {
 
   /* PinS, Listing 32.2: An actor that calls receive
    */
-  def makeEchoActor(): ActorRef = ActorDSL.actor(new StashingActor {
+  def makeEchoActor(): ActorRef = ActorDSL.actor(new ActWithStash {
 
     def receive = { // how to handle receive
       case 'stop =>
@@ -89,7 +89,7 @@ object Test extends App {
 
   /* PinS, page 696
    */
-  def makeIntActor(): ActorRef = ActorDSL.actor(new StashingActor {
+  def makeIntActor(): ActorRef = ActorDSL.actor(new ActWithStash {
 
     def receive = {
       case x: Int => // I only want Ints
@@ -100,7 +100,7 @@ object Test extends App {
     }
   })
 
-  ActorDSL.actor(new StashingActor {
+  ActorDSL.actor(new ActWithStash {
     val silly = SillyActor.ref
 
     override def preStart() {
@@ -119,7 +119,7 @@ object Test extends App {
             val seriousPromise2 = Promise[Boolean]()
             // PinS, page 694
             val seriousActor2 = ActorDSL.actor(
-              new StashingActor {
+              new ActWithStash {
 
                 def receive = { case _ => context.stop(self) }
 

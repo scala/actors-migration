@@ -1,4 +1,5 @@
-package scala.actors.migration
+package scala.actors
+package migration
 
 import scala.actors._
 import scala.actors.Actor._
@@ -7,22 +8,24 @@ import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import scala.language.implicitConversions
 
-object StashingActor extends Combinators {
+object ActWithStash extends Combinators {
   implicit def mkBody[A](body: => A) = new InternalActor.Body[A] {
     def andThen[B](other: => B): Unit = Actor.rawSelf.seq(body, other)
   }
 }
 
 @deprecated("Scala Actors are being removed from the standard library. Please refer to the migration guide.", "2.10.0")
-trait StashingActor extends InternalActor {
+trait ActWithStash extends InternalActor {
   type Receive = PartialFunction[Any, Unit]
 
-  // checks if StashingActor is created within the actorOf block
+  // checks if ActWithStash is created within the actorOf block
   creationCheck()
 
   private[actors] val ref = new InternalActorRef(this)
 
   val self: ActorRef = ref
+
+  implicit def actorSender: ActorRef = new InternalActorRef(Actor.self(Scheduler))
 
   protected[this] val context: ActorContext = new ActorContext(this)
 
@@ -96,7 +99,7 @@ trait StashingActor extends InternalActor {
 
   override def act(): Unit = internalAct()
 
-  override def start(): StashingActor = {
+  override def start(): ActWithStash = {
     super.start()
     this
   }
@@ -110,13 +113,13 @@ trait StashingActor extends InternalActor {
   private[actors] var behaviorStack = immutable.Stack[PartialFunction[Any, Unit]]()
 
   /*
-   * Checks that StashingActor instances can only be created using the ActorDSL.
+   * Checks that ActWithStash instances can only be created using the ActorDSL.
    */
   private[this] def creationCheck(): Unit = {
     // creation check (see ActorRef)
     val context = ActorDSL.contextStack.get
     if (context.isEmpty)
-      throw new RuntimeException("In order to create a StashingActor one must use the ActorDSL object")
+      throw new RuntimeException("In order to create a ActWithStash one must use the ActorDSL object")
     else {
       if (!context.head)
         throw new RuntimeException("Cannot create more than one actor")
@@ -189,7 +192,7 @@ trait StashingActor extends InternalActor {
   /**
    * Used to simulate Akka context behavior. Should be used only for migration purposes.
    */
-  protected[actors] class ActorContext(val actr: StashingActor) {
+  protected[actors] class ActorContext(val actr: ActWithStash) {
 
     /**
      * Changes the Actor's behavior to become the new 'Receive' (PartialFunction[Any, Unit]) handler.
@@ -255,3 +258,4 @@ class DeathPactException(ref: ActorRef = null) extends Exception {
  * Message that is sent to a watching actor when the watched actor terminates.
  */
 case class Terminated(actor: ActorRef)
+

@@ -38,7 +38,7 @@ object Test {
     Await.ready(finishedRSC1.future, 5 seconds)
 
     // React Snippet - migrated
-    val myAkkaActor = ActorDSL.actor(new StashingActor {
+    val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
         println("do before")
       }
@@ -87,7 +87,7 @@ object Test {
     Await.ready(finishedRS1.future, 5 seconds)
 
     // React Snippet - migrated
-    val myAkkaActor = ActorDSL.actor(new StashingActor {
+    val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
         println("do before")
       }

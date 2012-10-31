@@ -28,15 +28,16 @@ object Test {
 
   def main(args: Array[String]) = {
 
-    val respActor = ActorDSL.actor(new Actor {
-      def act() = {
+    val respActor = ActorDSL.actor(new ActWithStash {
+      def receive = { case x => x }
+      override def act() = {
         loop {
           react {
             case (x: String, time: Long) =>
               Thread.sleep(time)
               reply(x + " after " + time)
             case "forward" =>
-              if (self == sender)
+              if(self == sender) 
                 append("forward succeeded")
               latch.countDown()
             case str: String =>
@@ -100,8 +101,9 @@ object Test {
 
     // test reply (back and forth communication)
     {
-      val a = ActorDSL.actor(new Actor {
-        def act() = {
+      val a = ActorDSL.actor(new ActWithStash {
+        def receive = { case x => x }
+        override def act() = {
           val msg = ("reply from an actor", 0L)
           respActor ! msg
           receiveWithin(5000) {
@@ -122,17 +124,18 @@ object Test {
 
     // test forward method
     {
-      val a = ActorDSL.actor(new Actor {
-        def act() = {
-          val msg = ("forward from an actor", 0L)
-          respActor ! msg
-          react {
-            case a: String =>
-              append(a)
-              sender forward ("forward")
-          }
+      val a = ActorDSL.actor(new ActWithStash {
+        def receive = {case _ => ()}
+        override def act() ={
+        val msg = ("forward from an actor", 0L)
+        respActor ! msg
+        react {
+          case a: String =>
+            append(a)
+            sender forward ("forward")
         }
-      })
+      }
+        })
     }
 
     // output

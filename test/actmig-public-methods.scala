@@ -9,7 +9,7 @@ import scala.util.continuations._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 
 object Test {
-  val NUMBER_OF_TESTS = 6
+  val NUMBER_OF_TESTS = 8
 
   // used for sorting non-deterministic output
   val buff = ArrayBuffer[String]()
@@ -28,6 +28,10 @@ object Test {
           case (x: String, time: Long) =>
             Thread.sleep(time)
             reply(x + " after " + time)
+          case "forward" =>
+            if (self == sender)
+              append("forward succeeded")
+            latch.countDown()
           case str: String =>
             append(str)
             latch.countDown()
@@ -61,12 +65,44 @@ object Test {
     append(fut2())
     latch.countDown()
 
+    // test reply (back and forth communication)
+    {
+      val a = actor {
+        val msg = ("reply from an actor", 0L)
+        respActor ! msg
+        receive {
+          case a: String =>
+            append(a)
+            reply(msg)
+        }
+
+        react {
+          case a: String =>
+            append(a)
+            latch.countDown()
+        }
+
+      }
+    }
+
+    // test forward method
+    {
+      val a = actor {
+        val msg = ("forward from an actor", 0L)
+        respActor ! msg
+        react {
+          case a: String =>
+            append(a)
+            sender forward ("forward")
+        }
+      }
+    }
+
     // output
     latch.await(10, TimeUnit.SECONDS)
     if (latch.getCount() > 0) {
       println("Error: Tasks have not finished!!!")
     }
-
     buff.sorted.foreach(println)
     toStop.foreach(_ ! 'stop)
   }

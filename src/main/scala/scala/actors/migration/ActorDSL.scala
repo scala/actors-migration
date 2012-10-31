@@ -9,7 +9,7 @@
 package scala.actors
 package migration
 
-import scala.actors.{ Actor, ActorRef, InternalActorRef }
+import scala.actors.{ Actor, ActorRef }
 import scala.collection.immutable
 import scala.reflect.ClassTag
 
@@ -36,7 +36,7 @@ object ActorDSL {
         contextStack.set(if (!stackAfter.head) stackAfter.pop.pop else stackAfter.pop)
     }
   }
-  
+
   /**
    * Create an actor from the given thunk which must produce an [[scala.actors.Actor]].
    *
