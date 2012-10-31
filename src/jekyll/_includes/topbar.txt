@@ -5,11 +5,10 @@
         <div class="container">
           <a class="brand" href="index.html">Scala Actors Migration Kit</a>
           <ul class="nav">
+           <li><a target="_blank" href="actors-migration-guide.html">Migration Guide</a></li>
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
-           <li><a href="usage.html">Usage</a></li>
-           <li><a href="resource.html">Resource Typeclasss</a></li>
-           <li><a href="continuations.html">Continuations</a></li>
-           <li><a href="https://github.com/scala/actors-migration/wiki">Wiki</a></li>
+           <li><a target="_blank" href="http://github.com/vjovanov/actors-migration">Code</a></li>
+           <li><a target="_blank" href="http://github.com/vjovanov/actors-migration/issues">Bug Tracker</a></li>
           </ul>
         </div>
       </div>

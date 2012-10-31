@@ -10,12 +10,11 @@ object PluginDef extends Build {
   val actorsMigration = (Project("scala-actors-migration", file(".")) settings(
     organization := "org.scala-lang",
     name := "scala-actors-migration",
-    version := "1.0",
+    version <<= scalaVersion.identity,
     scalaVersion := "2.10.0-RC1",
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
-    libraryDependencies ++= dependencies,
-    autoCompilerPlugins := true
+    libraryDependencies ++= scalaVersion apply dependencies
   ) settings(publishSettings:_*) settings(websiteSettings:_*))
 
   def publishSettings: Seq[Setting[_]] = Seq(
@@ -41,7 +40,7 @@ object PluginDef extends Build {
           <distribution>repo</distribution>
         </license>
       </licenses>
-      <url>http://docs.scala-lang.org/actors-migration</url>
+      <url>http://docs.scala-lang.org/overviews/actor-migration</url>
       <scm>
         <url>git@github.com:scala/actors-migration.git</url>
         <connection>scm:git:git@github.com:scala/actors-migration.git</connection>
@@ -67,10 +66,10 @@ object PluginDef extends Build {
     }
   )
 
-  def dependencies = Seq(
+  def dependencies(sv: String) = Seq(
     "junit" % "junit" % "4.5" % "test",
     "com.novocode" % "junit-interface" % "0.7" % "test->default",
-    "org.scala-lang" % "scala-actors" % "2.10.0-RC1"
+    "org.scala-lang" % "scala-actors" % sv
   )
 
   
