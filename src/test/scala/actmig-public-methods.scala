@@ -8,7 +8,10 @@ import scala.actors._
 import scala.util.continuations._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 
-object Test {
+class PublicMethods extends PartestSuite {
+  val checkFile = "actormig-public-methods"
+  import org.junit._
+
   val NUMBER_OF_TESTS = 8
 
   // used for sorting non-deterministic output
@@ -20,7 +23,8 @@ object Test {
     buff += v
   }
 
-  def main(args: Array[String]) = {
+  @Test
+  def test(): Unit = {
 
     val respActor = actor {
       loop {

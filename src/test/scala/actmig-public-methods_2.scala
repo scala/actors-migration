@@ -14,7 +14,10 @@ import scala.concurrent.duration._
 import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Test {
+class PublicMethods2 extends PartestSuite {
+  val checkFile = "actormig-public-methods_2"
+  import org.junit._
+
   val NUMBER_OF_TESTS = 8
 
   // used for sorting non-deterministic output
@@ -26,7 +29,8 @@ object Test {
     buff += v
   }
 
-  def main(args: Array[String]) = {
+  @Test
+  def test(): Unit = {
 
     val respActor = ActorDSL.actor(new ActWithStash {
       def receive = { case x => x }
@@ -37,7 +41,7 @@ object Test {
               Thread.sleep(time)
               reply(x + " after " + time)
             case "forward" =>
-              if(self == sender) 
+              if (self == sender)
                 append("forward succeeded")
               latch.countDown()
             case str: String =>
@@ -125,17 +129,17 @@ object Test {
     // test forward method
     {
       val a = ActorDSL.actor(new ActWithStash {
-        def receive = {case _ => ()}
-        override def act() ={
-        val msg = ("forward from an actor", 0L)
-        respActor ! msg
-        react {
-          case a: String =>
-            append(a)
-            sender forward ("forward")
+        def receive = { case _ => () }
+        override def act() = {
+          val msg = ("forward from an actor", 0L)
+          respActor ! msg
+          react {
+            case a: String =>
+              append(a)
+              sender forward ("forward")
+          }
         }
-      }
-        })
+      })
     }
 
     // output

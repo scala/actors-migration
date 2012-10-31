@@ -10,7 +10,10 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-object Test {
+class Receive extends PartestSuite {
+  val checkFile = "actmig-receive"
+  import org.junit._
+
   val finishedSingle, finishedSingle1, finishedLoop, finishedLoop1 = Promise[Boolean]
 
   def testDoubleReceive() = {
@@ -111,7 +114,8 @@ object Test {
     Await.ready(finishedLoop1.future, 5 seconds)
   }
 
-  def main(args: Array[String]) = {
+    @Test
+  def test(): Unit = {
     testDoubleReceive()
     testLoopReceive()
   }

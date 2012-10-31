@@ -37,8 +37,8 @@ package object migration {
     }
   }
 
-  def registerActorRef(name: Symbol, a: ActorRef): Unit =
-    RemoteActor.internalRegister(name, a.asInstanceOf[InternalActorRef].localActor)
+//  def registerActorRef(name: Symbol, a: ActorRef): Unit =
+//  RemoteActor.internalRegister(name, a.asInstanceOf[InternalActorRef].localActor)
 
   implicit def actorSender: ActorRef = new InternalActorRef(Actor.self(Scheduler))
 }

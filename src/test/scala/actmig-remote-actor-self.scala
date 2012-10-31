@@ -13,10 +13,14 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-object Test {
+class RemoteActorSelf extends PartestSuite {
+  val checkFile = "actmig-remote-actor-self"
+  import org.junit._
+
   val finished = Promise[Boolean]
 
-  def main(args: Array[String]): Unit = {
+//  @Test TODO wait the merge
+  def test(): Unit = {
     // Can fail with class cast exception in alive
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {

@@ -8,13 +8,16 @@ import scala.actors._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import scala.collection.mutable.ArrayBuffer
 
-class TestActWithStash extends ActWithStash {
+class Instatiation extends PartestSuite {
+  val checkFile = "actmig-instatiation"
+  import org.junit._
 
-  def receive = { case v: Int => Test.append(v); Test.latch.countDown() }
+  class TestActWithStash extends ActWithStash {
 
-}
+    def receive = { case v: Int => append(v); latch.countDown() }
 
-object Test {
+  }
+
   val NUMBER_OF_TESTS = 5
 
   // used for sorting non-deterministic output
@@ -26,10 +29,11 @@ object Test {
     buff += v
   }
 
-  def main(args: Array[String]) = {
+  @Test
+  def test(): Unit = {
     // plain scala actor
     val a1 = actor {
-      react { case v: Int => Test.append(v); Test.latch.countDown() }
+      react { case v: Int => append(v); latch.countDown() }
     }
     a1 ! 100
 
@@ -40,7 +44,7 @@ object Test {
 
     // actor of with scala actor
     val a3 = ActorDSL.actor(actor {
-      react { case v: Int => Test.append(v); Test.latch.countDown() }
+      react { case v: Int => append(v); latch.countDown() }
     })
     a3 ! 300
 

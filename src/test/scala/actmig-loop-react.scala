@@ -10,7 +10,10 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-object Test {
+class LoopReact extends PartestSuite {
+  val checkFile = "loop-react"
+  import org.junit._
+
   val finishedLWCR, finishedTNR, finishedEH = Promise[Boolean]
   val finishedLWCR1, finishedTNR1, finishedEH1 = Promise[Boolean]
 
@@ -162,7 +165,29 @@ object Test {
     myAkkaActor ! "die"
   }
 
-  def main(args: Array[String]): Unit = {
+  // As per Jim Mcbeath's blog (http://jim-mcbeath.blogspot.com/2008/07/actor-exceptions.html)
+  class PFCatch(f: PartialFunction[Any, Unit],
+    handler: PartialFunction[Exception, Unit])
+    extends PartialFunction[Any, Unit] {
+
+    def apply(x: Any) = {
+      try {
+        f(x)
+      } catch {
+        case e: Exception if handler.isDefinedAt(e) => handler(e)
+      }
+    }
+
+    def isDefinedAt(x: Any) = f.isDefinedAt(x)
+  }
+
+  object PFCatch {
+    def apply(f: PartialFunction[Any, Unit],
+      handler: PartialFunction[Exception, Unit]) = new PFCatch(f, handler)
+  }
+
+  @Test
+  def test(): Unit = {
     testLoopWithConditionReact()
     Await.ready(finishedLWCR.future, 5 seconds)
     exceptionHandling()
@@ -170,26 +195,4 @@ object Test {
     testNestedReact()
     Await.ready(finishedTNR.future, 5 seconds)
   }
-
-}
-
-// As per Jim Mcbeath's blog (http://jim-mcbeath.blogspot.com/2008/07/actor-exceptions.html)
-class PFCatch(f: PartialFunction[Any, Unit],
-  handler: PartialFunction[Exception, Unit])
-  extends PartialFunction[Any, Unit] {
-
-  def apply(x: Any) = {
-    try {
-      f(x)
-    } catch {
-      case e: Exception if handler.isDefinedAt(e) => handler(e)
-    }
-  }
-
-  def isDefinedAt(x: Any) = f.isDefinedAt(x)
-}
-
-object PFCatch {
-  def apply(f: PartialFunction[Any, Unit],
-    handler: PartialFunction[Exception, Unit]) = new PFCatch(f, handler)
 }

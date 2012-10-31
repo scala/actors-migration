@@ -13,10 +13,14 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-object Test {
+class Remote extends PartestSuite {
+  val checkFile = "actmig-remote"
+  import org.junit._
+
   val finishedScala, finishedAkka = Promise[Boolean]
 
-  def main(args: Array[String]): Unit = {
+  // @Test TODO until the fix is merged
+  def test(): Unit = {
     // Snippet showing composition of receives
     // Loop with Condition Snippet - before
     class RActor extends Actor {
@@ -54,7 +58,7 @@ object Test {
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
         alive(2013)
-        registerActorRef('myActorAkka, self)
+        //registerActorRef('myActorAkka, self)
         println("registered")
       }
 

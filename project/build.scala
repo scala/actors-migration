@@ -11,7 +11,7 @@ object PluginDef extends Build {
     organization := "org.scala-lang",
     name := "scala-actors-migration",
     version := "1.0",
-    scalaVersion := "2.10.0-SNAPSHOT",
+    scalaVersion := "2.10.0-RC1",
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
     libraryDependencies ++= dependencies,
@@ -68,7 +68,9 @@ object PluginDef extends Build {
   )
 
   def dependencies = Seq(
-    "org.scala-lang" % "scala-actors" % "2.10.0-SNAPSHOT"
+    "junit" % "junit" % "4.5" % "test",
+    "com.novocode" % "junit-interface" % "0.7" % "test->default",
+    "org.scala-lang" % "scala-actors" % "2.10.0-RC1"
   )
 
   

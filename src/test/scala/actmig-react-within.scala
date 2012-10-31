@@ -10,7 +10,10 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-object Test {
+class ReactWithin extends PartestSuite {
+  val checkFile = "actmig-react-within"
+  import org.junit._
+
   val finished = Promise[Boolean]
 
   def testReactWithin() = {
@@ -39,7 +42,8 @@ object Test {
     })
   }
 
-  def main(args: Array[String]) = {
+    @Test
+  def test(): Unit = {
     testReactWithin()
     Await.ready(finished.future, 5 seconds)
   }

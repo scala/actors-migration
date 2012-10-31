@@ -3,7 +3,6 @@
  * code in these tests prior to the 2.10.0 release please send the notification to @vjovanov.
  */
 import scala.collection.mutable.ArrayBuffer
-import scala.actors.Actor._
 import scala.actors._
 import scala.actors.migration._
 import scala.util._
@@ -14,7 +13,10 @@ import scala.concurrent.duration._
 import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Test {
+class PublicMethods3 extends PartestSuite {
+  val checkFile = "actormig-public-methods_3"
+  import org.junit._
+
   val NUMBER_OF_TESTS = 8
 
   // used for sorting non-deterministic output
@@ -26,26 +28,23 @@ object Test {
     buff += v
   }
 
-  def main(args: Array[String]) = {
+  @Test
+  def test(): Unit = {
 
-    val respActor = ActorDSL.actor(new Actor {
-      def act() = {
-        loop {
-          react {
-            case (x: String, time: Long) =>
-              Thread.sleep(time)
-              reply(x + " after " + time)
-            case "forward" =>
-              if (self == sender)
-                append("forward succeeded")
-              latch.countDown()
-            case str: String =>
-              append(str)
-              latch.countDown()
-            case x =>
-              exit()
-          }
-        }
+    val respActor = ActorDSL.actor(new ActWithStash {
+      def receive = {
+        case (x: String, time: Long) =>
+          Thread.sleep(time)
+          reply(x + " after " + time)
+        case "forward" =>
+          if (self == sender)
+            append("forward succeeded")
+          latch.countDown()
+        case str: String =>
+          append(str)
+          latch.countDown()
+        case x =>
+          context.stop(self)
       }
     })
 
@@ -100,41 +99,39 @@ object Test {
 
     // test reply (back and forth communication)
     {
-      val a = ActorDSL.actor(new Actor {
-        def act() = {
-          val msg = ("reply from an actor", 0L)
+      val a = ActorDSL.actor(new ActWithStash {
+        val msg = ("reply from an actor", 0L)
+        override def preStart() = {
           respActor ! msg
-          receiveWithin(5000) {
-            case a: String =>
-              append(a)
-              reply(msg)
-          }
+        }
 
-          reactWithin(5000) {
-            case a: String =>
-              append(a)
-              latch.countDown()
-          }
-
+        def receive = {
+          case a: String =>
+            append(a)
+            sender ! msg
+            context.become {
+              case a: String =>
+                append(a)
+                latch.countDown()
+                context.stop(self)
+            }
         }
       })
     }
 
     // test forward method
     {
-      val a = ActorDSL.actor(new Actor {
-        def act() = {
-          val msg = ("forward from an actor", 0L)
-          respActor ! msg
-          react {
-            case a: String =>
-              append(a)
-              sender forward ("forward")
-          }
+      val a = ActorDSL.actor(new ActWithStash {
+        val msg = ("forward from an actor", 0L)
+        override def preStart() = { respActor ! msg }
+        def receive = {
+          case a: String =>
+            append(a)
+            sender forward ("forward")
+            context.stop(self)
         }
       })
     }
-
     // output
     latch.await(10, TimeUnit.SECONDS)
     if (latch.getCount() > 0) {
