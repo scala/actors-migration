@@ -13,7 +13,7 @@ object pattern {
 /**
  * ActorRef with support for ask(?) operation.
  */
-class AskableActorRef(val ar: ActorRef) extends ActorRef {
+private[migration] class AskableActorRef(val ar: ActorRef) extends ActorRef {
 
   def !(message: Any)(implicit sender: ActorRef = null): Unit = ar.!(message)(sender)
 
