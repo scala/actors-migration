@@ -134,10 +134,10 @@ trait ActWithStash extends InternalActor {
   }
 
   /**
-   * Adds message to a stash, to be processed later. Stashed messages can be fed back into the $actor's
+   * Adds message to a stash, to be processed later. Stashed messages can be fed back into the actors'
    *  mailbox using <code>unstashAll()</code>.
    *
-   *  Temporarily stashing away messages that the $actor does not (yet) handle simplifies implementing
+   *  Temporarily stashing away messages that the actor does not (yet) handle. Simplifies implementing
    *  certain messaging protocols.
    */
   final def stash(msg: Any): Unit = {

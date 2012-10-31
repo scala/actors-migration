@@ -1,11 +1,12 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.SbtSite._
-import SiteKeys._
+import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.SbtSite.SiteKeys._
+import com.typesafe.sbt.site.JekyllSupport.Jekyll
 import com.typesafe.sbt.SbtGhPages.ghpages
 import com.typesafe.sbt.SbtGit.git
 
-object PluginDef extends Build {
+object MigraitonDef extends Build {
 
   val actorsMigration = (Project("scala-actors-migration", file(".")) settings(
     organization := "org.scala-lang",
@@ -14,7 +15,7 @@ object PluginDef extends Build {
     scalaVersion := "2.10.0-RC1",
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
-    libraryDependencies ++= scalaVersion apply dependencies
+    libraryDependencies <++= scalaVersion apply dependencies
   ) settings(publishSettings:_*) settings(websiteSettings:_*))
 
   def publishSettings: Seq[Setting[_]] = Seq(
@@ -54,16 +55,15 @@ object PluginDef extends Build {
       </developers>)
   )
 
-  def websiteSettings: Seq[Setting[_]] = site.settings ++ ghpages.settings ++ Seq(
-    git.remoteRepo := "git@github.com:vjovanov/actors-migration.git",
-    siteMappings <++= (baseDirectory, target, streams) map { (dir, out, s) => 
-      val jekyllSrc = dir / "src" / "jekyll"
-      val jekyllOutput = out / "jekyll"
-      // Run Jekyll
-      sbt.Process(Seq("jekyll", jekyllOutput.getAbsolutePath), Some(jekyllSrc)).!;
-      // Figure out what was generated.
-      (jekyllOutput ** ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME") x relativeTo(jekyllOutput))
-    }
+  def websiteSettings: Seq[Setting[_]] = (
+    site.settings ++
+    ghpages.settings ++
+    site.includeScaladoc() ++
+    site.jekyllSupport() ++
+    Seq(
+      git.remoteRepo := "git@github.com:vjovanov/actors-migration.git",
+      includeFilter in Jekyll := ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME")
+    )
   )
 
   def dependencies(sv: String) = Seq(
