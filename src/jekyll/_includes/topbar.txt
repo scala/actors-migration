@@ -3,13 +3,13 @@
     <div class="topbar" >
       <div class="topbar-inner">
         <div class="container">
-          <a class="brand" href="index.html">Scala ARM</a>
+          <a class="brand" href="index.html">Scala Actors Migration Kit</a>
           <ul class="nav">
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
            <li><a href="usage.html">Usage</a></li>
            <li><a href="resource.html">Resource Typeclasss</a></li>
            <li><a href="continuations.html">Continuations</a></li>
-           <li><a href="https://github.com/jsuereth/scala-arm/wiki">Wiki</a></li>
+           <li><a href="https://github.com/scala/actors-migration/wiki">Wiki</a></li>
           </ul>
         </div>
       </div>
