@@ -19,7 +19,7 @@ class Remote extends PartestSuite {
 
   val finishedScala, finishedAkka = Promise[Boolean]
 
-  // @Test(timeout=10000) TODO until the fix is merged
+  @Test(timeout=10000)
   def test(): Unit = {
     // Snippet showing composition of receives
     // Loop with Condition Snippet - before
@@ -58,7 +58,7 @@ class Remote extends PartestSuite {
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
         alive(2013)
-        //registerActorRef('myActorAkka, self)
+        register('myActorAkka, remoteActorFor(this))
         println("registered")
       }
 

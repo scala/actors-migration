@@ -25,7 +25,7 @@ private[actors] class OutputChannelRef(val actor: OutputChannel[Any]) extends Ac
    */
   def !(message: Any)(implicit sender: ActorRef = null): Unit =
     if (sender != null)
-      actor.send(message, sender.localActor)
+      actor.send(message, OutputChannelExtractor.extractOutputChannel(sender))
     else {
       if (!Actor.self.isInstanceOf[scala.actors.ActorProxy])
         actor ! message // attaches self as a sender
@@ -77,9 +77,20 @@ private[actors] final class InternalActorRef(override val actor: InternalActor) 
     if (message == PoisonPill)
       actor.stop('normal)
     else if (sender != null)
-      actor.send(message, sender.localActor)
+      actor.send(message, OutputChannelExtractor.extractOutputChannel(sender))
     else
       actor ! message
 
   private[actors] override def localActor: InternalActor = this.actor
+
+}
+
+private[migration] object OutputChannelExtractor {
+
+  // FIXME: The OutputChannelActorRef does not have the extractor. Too late to change Scala.
+  def extractOutputChannel(a: ActorRef) = a match {
+    case x: ReactorRef => x.actor
+    case x: OutputChannelRef => x.actor
+    case x => x.localActor
+  }
 }
