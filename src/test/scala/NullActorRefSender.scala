@@ -7,7 +7,7 @@ import Assert._
 
 class NullActorRefSender {
 
-  @Test
+  @Test(timeout=10000)
   def test(): Unit = {
 
     // asserts the value of the sender

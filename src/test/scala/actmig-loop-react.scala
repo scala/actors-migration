@@ -186,7 +186,7 @@ class LoopReact extends PartestSuite {
       handler: PartialFunction[Exception, Unit]) = new PFCatch(f, handler)
   }
 
-  @Test
+  @Test(timeout=10000)
   def test(): Unit = {
     testLoopWithConditionReact()
     Await.ready(finishedLWCR.future, 5 seconds)

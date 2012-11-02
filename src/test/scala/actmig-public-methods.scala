@@ -23,7 +23,7 @@ class PublicMethods extends PartestSuite {
     buff += v
   }
 
-  @Test
+  @Test(timeout=10000)
   def test(): Unit = {
 
     val respActor = actor {

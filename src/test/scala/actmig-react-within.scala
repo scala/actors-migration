@@ -42,7 +42,7 @@ class ReactWithin extends PartestSuite {
     })
   }
 
-    @Test
+    @Test(timeout=10000)
   def test(): Unit = {
     testReactWithin()
     Await.ready(finished.future, 5 seconds)

@@ -319,7 +319,7 @@ mimics the message processing loop of Akka. The changes are shown in the followi
     class MyActor extends StashingActor {
 
        // dummy receive method (not used for now)
-       def receive = {case x => x}
+       def receive = {case _ => }
 
        override def act() {
          // old code with methods receive changed to react.

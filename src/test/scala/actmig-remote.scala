@@ -19,7 +19,7 @@ class Remote extends PartestSuite {
 
   val finishedScala, finishedAkka = Promise[Boolean]
 
-  // @Test TODO until the fix is merged
+  // @Test(timeout=10000) TODO until the fix is merged
   def test(): Unit = {
     // Snippet showing composition of receives
     // Loop with Condition Snippet - before

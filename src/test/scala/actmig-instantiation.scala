@@ -29,7 +29,7 @@ class Instatiation extends PartestSuite {
     buff += v
   }
 
-  @Test
+  @Test(timeout=10000)
   def test(): Unit = {
     // plain scala actor
     val a1 = actor {

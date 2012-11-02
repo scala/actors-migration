@@ -71,7 +71,7 @@ class ReactReceive extends PartestSuite {
     Await.ready(finishedRSC.future, 5 seconds)
   }
 
-  @Test
+  @Test(timeout=10000)
   def test(): Unit = {
     // React Snippet - before
     val myActor = actor {

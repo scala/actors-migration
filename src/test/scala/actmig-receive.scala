@@ -114,7 +114,7 @@ class Receive extends PartestSuite {
     Await.ready(finishedLoop1.future, 5 seconds)
   }
 
-    @Test
+    @Test(timeout=10000)
   def test(): Unit = {
     testDoubleReceive()
     testLoopReceive()

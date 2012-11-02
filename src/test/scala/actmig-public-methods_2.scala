@@ -29,11 +29,11 @@ class PublicMethods2 extends PartestSuite {
     buff += v
   }
 
-  @Test
+  @Test(timeout=10000)
   def test(): Unit = {
 
     val respActor = ActorDSL.actor(new ActWithStash {
-      def receive = { case x => x }
+      def receive = { case _ => }
       override def act() = {
         loop {
           react {
@@ -106,7 +106,7 @@ class PublicMethods2 extends PartestSuite {
     // test reply (back and forth communication)
     {
       val a = ActorDSL.actor(new ActWithStash {
-        def receive = { case x => x }
+        def receive = { case _ => }
         override def act() = {
           val msg = ("reply from an actor", 0L)
           respActor ! msg

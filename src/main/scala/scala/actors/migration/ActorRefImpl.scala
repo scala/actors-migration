@@ -27,7 +27,7 @@ private[actors] class OutputChannelRef(val actor: OutputChannel[Any]) extends Ac
     if (sender != null)
       actor.send(message, sender.localActor)
     else {
-      if (Actor.self.isInstanceOf[Actor])
+      if (!Actor.self.isInstanceOf[scala.actors.ActorProxy])
         actor ! message // attaches self as a sender
       else
         actor.send(message, null)
