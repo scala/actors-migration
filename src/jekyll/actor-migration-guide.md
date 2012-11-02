@@ -38,15 +38,15 @@ to thoroughly test the code after each step of the migration process.
 
 ## 2. Limitations of the Migration Kit
 
+Due to differences in Akka and Scala actor models the complete functionality can not be migrated smoothly. The following list explains parts of the behavior that are hard to migrate:
+
 1. Relying on termination reason and bidirectional behavior with `link` method - Scala and Akka actors have different fault-handling and actor monitoring models.
 In Scala linked actors terminate if one of the linked parties terminates abnormally. If termination is tracked explicitly (by `self.trapExit`) the actor receives
 the termination reason from the failed actor. This functionality can not be migrated to Akka with the AMK. The AMK allows migration only for the 
 [Akka monitoring](http://doc.akka.io/docs/akka/2.1.0-RC1/general/supervision.html#What_Lifecycle_Monitoring_Means)
-mechanism. Monitoring is different than linking because it is unidirectional and the termination reason is now known. If monitoring support is not enough to migrate
- the user code there are two possible workarounds:
-    * Postpone the migration of linking to the last possible moment (Step 4). Then when moving to Akka create an [supervision hierarchy](http://doc.akka.io/docs/akka/2.1.0-RC1/general/supervision.html) that will handle faults.
-    * Make all actor failures explicit and send user defined messages for each type of failure in the actor. For example, in the master-slave configuration, 
-    slave catches errors explicitly and notifies the master about the failure by sending a message containing the type of failure.
+mechanism. Monitoring is different than linking because it is unidirectional and the termination reason is now known. If monitoring support is not enough, the migration
+of `link` must be postponed until the last possible moment (Step 5 of migration). 
+Then, when moving to Akka, users must create an [supervision hierarchy](http://doc.akka.io/docs/akka/2.1.0-RC1/general/supervision.html) that will handle faults.
 
 2. Usage of the `restart` method - Akka does not provide explicit restart of actors so we can not provide the smooth migration for this use-case. 
 The user must change the system so there are no usages of the `restart` method.
@@ -200,7 +200,7 @@ Rules:
 1. `!!(msg: Any): Future[Any]` gets replaced with `?`. This rule will change a return type to the `scala.concurrent.Future` which might not type check. 
 Since `scala.concurrent.Future` has broader functionality than the previously returned one, this type error can be easily fixed with local changes:
 
-        actor !! message -> respActor ? message          
+        actor !! message -> respActor ? message
 
 2. `!![A] (msg: Any, handler: PartialFunction[Any, A]): Future[A]` gets replaced with `?`. The handler can be extracted as a separate
 function and then applied to the generated future result. The result of a handle should yield another future like
@@ -211,7 +211,7 @@ in the following example:
 
 3. `!? (msg: Any): Any` gets replaced with `?` and explicit blocking on the returned future:
 
-        actor !? message ->          
+        actor !? message ->
           Await.result(respActor ? message, Duration.Inf)
 
 4. `!? (msec: Long, msg: Any): Option[Any]` gets replaced with `?` and explicit blocking on the future:
@@ -219,7 +219,7 @@ in the following example:
         actor !? (dur, message) ->
           val res = respActor.?(message)(Timeout(dur milliseconds))
           val optFut = res map (Some(_)) recover { case _ => None }
-          Await.result(optFut, Duration.Inf)         
+          Await.result(optFut, Duration.Inf)
 
 Public methods that are not mentioned here are declared public for purposes of the actors DSL. They can be used only
 inside the actor definition so their migration is not relevant in this step.
@@ -244,11 +244,11 @@ devise a translation based on these two.
 
         def act() = {
           // do before
-          receive {            
-              // handler 1                           
+          receive {
+              // handler 1
           }
           // in between
-          receive {            
+          receive {
               // handler 2
           }
           // after
@@ -258,7 +258,7 @@ devise a translation based on these two.
 
         def act() = {
           // do before
-          react (({            
+          react (({
               // handler 1
           }: PartialFunction[Any, Unit]).andThen { x =>
             // in between
@@ -270,10 +270,10 @@ devise a translation based on these two.
             })
           })
         }
-               
+
    The `andThen` combinator is used to avoid duplication of `\\ after` code in each case
    of handlers.
-     
+
 2. Receive inside a loop that terminates based on a condition.
 
         def act() = {
@@ -438,7 +438,7 @@ should be moved to the `preStart` method.
                   case y: String =>
                     // do nested task
                 }
-              }              
+              }
             }
           }
         }
@@ -448,7 +448,7 @@ should be moved to the `preStart` method.
         def receive = {
           case x: Int =>
             // do task
-            if (x == 42) {              
+            if (x == 42) {
               context.stop(self)
             } else {
               context.become(({
@@ -556,7 +556,8 @@ returns the `Terminated(a: ActorRef)` message that contains only the `ActorRef`.
 Note that this will happen even when the watched actor terminated normally. In Scala linked actors terminate, with the same termination reason, only if
 one of the actors terminates abnormally.
 
-   If the system can not be migrated solely with watching the user has the two alternatives described in "Limitations of the Migration Kit".
+   TODO: code examples. If the system can not be migrated solely with `watch` the user should leave methods `link` as is. However since `act()` overrides the `Exit` message the following has the two alternatives described in "Limitations of the Migration Kit". If you must stay with Scala linking
+then you need to apply the following
 
    NOTE: There is another subtle difference between Scala and Akka actors. In Scala, `link`/`watch` to the already dead actor will not have affect.
 In Akka, watching the already dead actor will result in sending the `Terminated` message. This can give unexpected behavior in the Step 5 of the migration guide.
