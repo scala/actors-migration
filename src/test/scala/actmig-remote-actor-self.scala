@@ -19,7 +19,7 @@ class RemoteActorSelf extends PartestSuite {
 
   val finished = Promise[Boolean]
 
-//  @Test TODO wait the merge
+  @Test
   def test(): Unit = {
     // Can fail with class cast exception in alive
     val myAkkaActor = ActorDSL.actor(new ActWithStash {

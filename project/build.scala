@@ -17,7 +17,7 @@ object MigraitonDef extends Build {
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
     libraryDependencies <++= scalaVersion apply dependencies
   ) settings(publishSettings:_*) settings(websiteSettings:_*))
-
+  
   def publishSettings: Seq[Setting[_]] = Seq(
     // If we want on maven central, we need to be in maven style.
     publishMavenStyle := true,
@@ -67,9 +67,9 @@ object MigraitonDef extends Build {
   )
 
   def dependencies(sv: String) = Seq(
+    // "org.scala-lang" % "scala-actors" % sv
     "junit" % "junit" % "4.5" % "test",
-    "com.novocode" % "junit-interface" % "0.7" % "test->default",
-    "org.scala-lang" % "scala-actors" % sv
+    "com.novocode" % "junit-interface" % "0.7" % "test->default"
   )
 
   
