@@ -166,7 +166,7 @@ trait ActWithStash extends InternalActor {
     def swapExitHandler(pf: PartialFunction[Any, Unit]) = new PartialFunction[Any, Unit] {
       def swapExit(v: Any) = v match {
         case Exit(from, reason) =>
-          Terminated(new InternalActorRef(from.asInstanceOf[InternalActor]))
+          Terminated(new InternalActorRef(from.asInstanceOf[InternalActor]))(reason)
         case v => v
       }
 
@@ -266,5 +266,5 @@ class DeathPactException(ref: ActorRef = null) extends Exception {
 /**
  * Message that is sent to a watching actor when the watched actor terminates.
  */
-case class Terminated(actor: ActorRef)
+case class Terminated(actor: ActorRef)(val reason: AnyRef)
 
