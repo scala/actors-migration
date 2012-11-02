@@ -9,9 +9,15 @@ import java.util.concurrent.TimeUnit
 import scala.language.implicitConversions
 
 object ActWithStash extends Combinators {
+
+  private[migration] val deadLettersActor = ActorDSL.actor(new ActWithStash {
+    def receive = { case m => System.err.println("Dead message: " + m) }
+  })
+
   implicit def mkBody[A](body: => A) = new InternalActor.Body[A] {
     def andThen[B](other: => B): Unit = Actor.rawSelf.seq(body, other)
   }
+
 }
 
 @deprecated("Scala Actors are being removed from the standard library. Please refer to the migration guide.", "2.10.0")
@@ -91,11 +97,14 @@ trait ActWithStash extends InternalActor {
   def unhandled(message: Any) {
     message match {
       case Terminated(dead) ⇒ throw new DeathPactException(dead)
-      case _                ⇒ System.err.println("Unhandeled message " + message)
+      case _ ⇒ System.err.println("Unhandeled message " + message)
     }
   }
 
-  protected def sender: ActorRef = new OutputChannelRef(internalSender)
+  protected def sender: ActorRef = internalSender match {
+    case null => ActWithStash.deadLettersActor
+    case x => new OutputChannelRef(x)
+  }
 
   override def act(): Unit = internalAct()
 

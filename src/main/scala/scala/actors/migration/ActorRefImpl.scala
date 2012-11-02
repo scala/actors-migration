@@ -26,8 +26,12 @@ private[actors] class OutputChannelRef(val actor: OutputChannel[Any]) extends Ac
   def !(message: Any)(implicit sender: ActorRef = null): Unit =
     if (sender != null)
       actor.send(message, sender.localActor)
-    else
-      actor ! message
+    else {
+      if (Actor.self.isInstanceOf[Actor])
+        actor ! message // attaches self as a sender
+      else
+        actor.send(message, null)
+    }
 
   override def equals(that: Any) =
     that.isInstanceOf[OutputChannelRef] && that.asInstanceOf[OutputChannelRef].actor == this.actor
