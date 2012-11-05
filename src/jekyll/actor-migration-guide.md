@@ -76,7 +76,7 @@ Addition of *scala-actors.jar* and *scala-actors-migration.jar* enables the usag
 Actor Migration Kit should be used in 5 steps. Each step is designed to introduce minimal changes
 to the code base and allows users to run all system tests after it. In the first four steps of the migration 
 the code will use the Scala actors implementation. However, the methods and class signatures will be transformed to closely resemble Akka.
-The migration kit on the Scala side introduces a new actor type (`StashingActor`) and enforces access to actors through the `ActorRef` interface.
+The migration kit on the Scala side introduces a new actor type (`ActWithStash`) and enforces access to actors through the `ActorRef` interface.
 
 It also enforces creation of actors through special methods on the `ActorDSL` object. In these steps it will be possible to migrate one
 actor at a time. This reduces the possibility of complex errors that are caused by several bugs introduced at the same time.
@@ -171,6 +171,8 @@ Note that Akka actors are always started on instantiation. In case actors in the
  system are created and started at different locations, and changing this can affect the behavior of the system, 
 users need to change the code so actors are started right after instantiation.
 
+Remote actors also need to be fetched as `ActorRef`s. To get an `ActorRef` of an remote actor use the method `selectActorRef`.
+
 #### Different Method Signatures
 
 At this point we have changed all the actor instantiations to return `ActorRef`s, however, we are not done yet.
@@ -224,19 +226,19 @@ in the following example:
 Public methods that are not mentioned here are declared public for purposes of the actors DSL. They can be used only
 inside the actor definition so their migration is not relevant in this step.
 
-### Step 3 - `Actor`s become `StashingActor`s
+### Step 3 - `Actor`s become `ActWithStash`s
 
 At this point all actors inherit the `Actor` trait, we instantiate actors through special factory methods,
 and all actors are accessed through the `ActorRef` interface.
-Now we need to change all actors to the `StashingActor` class from the AMK. This class behaves exactly the same like Scala `Actor`
+Now we need to change all actors to the `ActWithStash` class from the AMK. This class behaves exactly the same like Scala `Actor`
 but, additionally, provides methods that correspond to methods in Akka's `Actor` trait. This allows easy, step by step, migration to the Akka behavior.
 
-To change user base to the new type of actor all actors should extend the `StashingActor` instead of the `Actor`. Apply the 
+To change user base to the new type of actor all actors should extend the `ActWithStash` instead of the `Actor`. Apply the 
 following rule:
 
-    class MyActor extends Actor -> class MyActor extends StashingActor
+    class MyActor extends Actor -> class MyActor extends ActWithStash
 
-After this change code will not compile. The `StashingActor` trait does not support `receive`/`receiveWithin` methods. These methods need to be replaced with usage of `react`/`reactWithin`. 
+After this change code will not compile. The `ActWithStash` trait does not support `receive`/`receiveWithin` methods. These methods need to be replaced with usage of `react`/`reactWithin`. 
 We present the transformation for two simplest scenarios: series of receives, and receive within a loop. For other scenarions users should 
 devise a translation based on these two.
 
@@ -313,10 +315,10 @@ devise a translation based on these two.
 
 
 Additionally, to make the code compile, users must add the `override` keyword before the `act` method, and to create
-the empty `receive` method in the code. Method `act` needs to be overriden since its implementation in `StashingActor` 
+the empty `receive` method in the code. Method `act` needs to be overriden since its implementation in `ActWithStash` 
 mimics the message processing loop of Akka. The changes are shown in the following example:
 
-    class MyActor extends StashingActor {
+    class MyActor extends ActWithStash {
 
        // dummy receive method (not used for now)
        def receive = {case _ => }
@@ -326,19 +328,25 @@ mimics the message processing loop of Akka. The changes are shown in the followi
        }
     }
 
-After this point user can run the test suite and the whole system should behave as before. The `StashingActor` and `Actor` use the same infrastructure so the system 
+The remote actors will not work with `ActWithStash` out of the box. The method `register('name, this)` needs to be replaced with: 
+
+    registerActorRef('name, self)
+
+In later steps of migration calls to `registerActorRef` and `alive` should be treated like any other calls.
+
+After this point user can run the test suite and the whole system should behave as before. The `ActWithStash` and `Actor` use the same infrastructure so the system 
 should behave exactly the same.
 
 ### Step 4 - Removing the `act` Method
 
-In this section we describe how to remove the `act` method from `StashingActor`s and how to
-change the methods used in the `StashingActor` to resemble Akka. Since this step can be complex, it is recommended 
+In this section we describe how to remove the `act` method from `ActWithStash`s and how to
+change the methods used in the `ActWithStash` to resemble Akka. Since this step can be complex, it is recommended 
 to do changes one actor at a time. In Scala, an actor's behavior is defined by implementing the `act` method. Logically, an actor is a concurrent process
 which executes the body of its `act` method, and then terminates. In Akka, the behavior is defined by using a global message
 handler which processes the messages in the actor's mailbox one by one. The message handler is a partial function, returned by the `receive` method, 
 which gets applied to each message.
 
-Since the behavior of Akka methods in the `StashingActor` depends on the removal of the `act` method we have to do that first. Then we will give the translation 
+Since the behavior of Akka methods in the `ActWithStash` depends on the removal of the `act` method we have to do that first. Then we will give the translation 
 rules for translating individual methods of the `scala.actors.Actor` trait.
 
 #### Removal of `act`
@@ -556,8 +564,18 @@ returns the `Terminated(a: ActorRef)` message that contains only the `ActorRef`.
 Note that this will happen even when the watched actor terminated normally. In Scala linked actors terminate, with the same termination reason, only if
 one of the actors terminates abnormally.
 
-   TODO: code examples. If the system can not be migrated solely with `watch` the user should leave methods `link` as is. However since `act()` overrides the `Exit` message the following has the two alternatives described in "Limitations of the Migration Kit". If you must stay with Scala linking
-then you need to apply the following
+   If the system can not be migrated solely with `watch` the user should leave invocations to `link` and `exit(reason)` as is. However since `act()` overrides the `Exit` message the following transformation 
+needs to be applied:
+
+    case Exit(actor, reason) =>
+            println("too bad because of your " + reason)
+            ...
+
+    should be replaced with
+
+    case t @ Terminated(actorRef) =>
+          println("too bad because of your " + t.reason)
+          ...
 
    NOTE: There is another subtle difference between Scala and Akka actors. In Scala, `link`/`watch` to the already dead actor will not have affect.
 In Akka, watching the already dead actor will result in sending the `Terminated` message. This can give unexpected behavior in the Step 5 of the migration guide.
@@ -577,15 +595,15 @@ from scala to Akka. Following is the non-exhaustive list of package names that n
     scala.actors.migration.pattern.ask -> akka.pattern.ask
     scala.actors.migration.Timeout -> akka.util.Timeout
 
-Occurrences of `StashingActor` must be replaced with `ActWithStash`
+Occurrences of `ActWithStash` must be replaced with `ActWithStash`
 (in the `akka.actor.ActorDSL` object). This can be done conveniently
 using a renaming import (using an import selector clause):
 
-    import akka.actor.ActorDSL.{ ActWithStash => StashingActor }
+    import akka.actor.ActorDSL.{ ActWithStash => ActWithStash }
 
 This imports Akka's `ActWithStash` and renames it to
-`StashingActor`. This way, it is not necessary to textually replace
-all occurrences of `StashingActor`.
+`ActWithStash`. This way, it is not necessary to textually replace
+all occurrences of `ActWithStash`.
 
 Also, method declarations `def receive =` in `ActWithStash` should be prepended with `override`.
 
@@ -617,15 +635,22 @@ Then apply the following transformation:
 
     ActorDSL.actor(...) -> ActorDSL.actor(system)(...)
 
+If many calls to `actor` use the same `ActorSystem` it can be passed as an implicit parameter. For example:
+
+    ActorDSL.actor(...) ->
+      import project.implicitActorSystem
+      ActorDSL.actor(...)
+
 Finally, Scala programs are terminating when all the non-daemon threads and actors finish. With Akka the program ends when all the non-daemon threads finish and all actor systems are shut down.
  Actor systems need to be explicitly terminated before the program can exit. This is achieved by invoking the `shutdown` method on an Actor system.
 
 #### Remote Actors
-TODO Philipp: Paragraph about remoting.
-  alive(port: Int): Unit - starts the remote service -> this done by configuration in Akka
-  register(name, actor) - passing the name to the actorOf
 
-All of the code snippets presented in this document can be found in the [Scala test suite](http://github.com/scala/scala/tree/master/test/files/jvm) as test files with the prefix `actmig`.
+Once the code base is moved to Akka remoting will not work any more. The methods methods `registerActorFor` and `alive` need to be removed. In Akka, remoting is done solely by configuration and 
+for further details refer to the [Akka remoting documentation](http://doc.akka.io/docs/akka/2.1-RC1/scala/remoting.html).
+
+#### Examples and Issues
+All of the code snippets presented in this document can be found in the [Actors Migration test suite](http://github.com/scala/actors-migration/tree/master/src/test/) as test files with the prefix `actmig`.
 
 This document and the Actor Migration Kit were designed and implemented by: [Vojin Jovanovic](http://people.epfl.ch/vojin.jovanovic) and [Philipp Haller](http://lampwww.epfl.ch/~phaller/)
 

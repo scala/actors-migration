@@ -2,6 +2,7 @@
  * NOTE: Code snippets from this test are included in the Actor Migration Guide. In case you change
  * code in these tests prior to the 2.10.0 release please send the notification to @vjovanov.
  */
+package scala.actors.migration
 import scala.actors.Actor._
 import scala.actors._
 import scala.actors.migration._
@@ -33,7 +34,7 @@ class Remote extends PartestSuite {
           react {
             case x: Int =>
               // do task
-              println("do task")
+              println("do task " + x)
               if (x == 42) {
                 c = false
                 finishedScala.success(true)
@@ -49,6 +50,7 @@ class Remote extends PartestSuite {
 
     actor {
       val myRemoteActor = select(Node("127.0.0.1", 2014), 'myActor)
+      myRemoteActor ! 41
       myRemoteActor ! 42
     }
 
@@ -58,14 +60,14 @@ class Remote extends PartestSuite {
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
         alive(2013)
-        register('myActorAkka, remoteActorFor(this))
+        registerActorRef('myActorAkka, self)
         println("registered")
       }
 
       def receive = {
         case x: Int =>
           // do task
-          println("do task")
+          println("do task " + x)
           if (x == 42) {
             finishedAkka.success(true)
             context.stop(self)
@@ -74,11 +76,15 @@ class Remote extends PartestSuite {
     })
 
     actor {
-      val myRemoteActor = select(Node("127.0.0.1", 2013), 'myActorAkka)
+      val myRemoteActor = selectActorRef(Node("127.0.0.1", 2013), 'myActorAkka)
+
+      // this is not deterministic
+      myRemoteActor ! 41
       myRemoteActor ! 42
     }
 
     Await.ready(finishedAkka.future, 5 seconds)
+    assertPartest()
   }
 
 }

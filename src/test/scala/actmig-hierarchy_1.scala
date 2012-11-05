@@ -2,6 +2,7 @@
  * NOTE: Code snippets from this test are included in the Actor Migration Guide. In case you change
  * code in these tests prior to the 2.10.0 release please send the notification to @vjovanov.
  */
+package scala.actors.migration
 import scala.actors._
 
 class Hierarchy1 extends PartestSuite {

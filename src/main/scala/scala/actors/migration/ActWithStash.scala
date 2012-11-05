@@ -263,8 +263,8 @@ class DeathPactException(ref: ActorRef = null) extends Exception {
   override def fillInStackTrace() = this //Don't waste cycles generating stack trace
 }
 
+
 /**
  * Message that is sent to a watching actor when the watched actor terminates.
  */
 case class Terminated(actor: ActorRef)(val reason: AnyRef)
-

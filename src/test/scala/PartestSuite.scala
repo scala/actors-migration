@@ -1,3 +1,5 @@
+package scala.actors.migration
+
 import org.junit._
 import Assert._
 
