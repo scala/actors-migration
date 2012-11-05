@@ -9,7 +9,7 @@ import scala.actors._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import scala.collection.mutable.ArrayBuffer
 
-class Instatiation extends PartestSuite {
+class Instatiation extends PartestSuite with ActorSuite {
   val checkFile = "actmig-instantiation"
   import org.junit._
 

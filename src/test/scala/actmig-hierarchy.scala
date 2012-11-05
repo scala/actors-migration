@@ -5,7 +5,7 @@
 package scala.actors.migration
 import scala.actors._
 
-class Hierarchy extends PartestSuite {
+class Hierarchy extends PartestSuite with ActorSuite {
   val checkFile = "actmig-hierarchy"
   import org.junit._
 

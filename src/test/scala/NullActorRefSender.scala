@@ -8,7 +8,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.actors.migration._
 
-class NullActorRefSender {
+class NullActorRefSender extends ActorSuite {
 
   @Test(timeout = 10000)
   def test(): Unit = {

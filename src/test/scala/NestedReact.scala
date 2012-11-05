@@ -7,7 +7,7 @@ import Assert._
 import scala.concurrent.duration._
 import scala.concurrent._
 
-class NestedReact extends PartestSuite {
+class NestedReact extends PartestSuite with ActorSuite {
 
   final def initActorStates: Unit = synchronized { scala.actors.Actor.State.New }
 

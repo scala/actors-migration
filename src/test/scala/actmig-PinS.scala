@@ -9,7 +9,7 @@ import scala.concurrent.{ Promise, Await }
 
 import scala.actors.Actor._
 
-class PinS extends PartestSuite {
+class PinS extends PartestSuite with ActorSuite {
   val checkFile = "actmig-PinS"
   import org.junit._
 

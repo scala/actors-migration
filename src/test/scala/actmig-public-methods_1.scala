@@ -16,7 +16,7 @@ import scala.concurrent.duration._
 import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PublicMethods1 extends PartestSuite {
+class PublicMethods1 extends PartestSuite with ActorSuite {
   val checkFile = "actmig-public-methods"
   import org.junit._
 
@@ -110,13 +110,13 @@ class PublicMethods1 extends PartestSuite {
         def act() = {
           val msg = ("reply from an actor", 0L)
           respActor ! msg
-          receiveWithin(5000) {
+          receiveWithin(10000) {
             case a: String =>
               append(a)
               reply(msg)
           }
 
-          reactWithin(5000) {
+          reactWithin(10000) {
             case a: String =>
               append(a)
               latch.countDown()
@@ -142,7 +142,7 @@ class PublicMethods1 extends PartestSuite {
     }
 
     // output
-    latch.await(10, TimeUnit.SECONDS)
+    latch.await(20, TimeUnit.SECONDS)
     if (latch.getCount() > 0) {
       println("Error: Tasks have not finished!!!")
     }

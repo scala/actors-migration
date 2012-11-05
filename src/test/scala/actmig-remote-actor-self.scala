@@ -14,7 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-class RemoteActorSelf extends PartestSuite {
+class RemoteActorSelf extends PartestSuite with ActorSuite {
   val checkFile = "actmig-remote-actor-self"
   import org.junit._
 

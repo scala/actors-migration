@@ -7,7 +7,7 @@ import Assert._
 import scala.concurrent._
 import scala.concurrent.duration._
 
-class LinkMigration extends PartestSuite {
+class LinkMigration extends PartestSuite with ActorSuite {
   val checkFile = "link-migration"
 
   @Test

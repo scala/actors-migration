@@ -9,6 +9,7 @@ abstract class PartestSuite {
 
   private val buffer: StringBuffer = new StringBuffer
 
+  def print(x: Any): Unit = buffer.append(x.toString)
   def println(x: Any): Unit = buffer.append(x.toString).append("\n")
 
   def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {

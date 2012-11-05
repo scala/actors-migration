@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-class ReactReceive extends PartestSuite {
+class ReactReceive extends PartestSuite with ActorSuite {
   val checkFile = "actmig-react-receive"
   import org.junit._
 

@@ -14,7 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-class Remote extends PartestSuite {
+class Remote extends PartestSuite with ActorSuite {
   val checkFile = "actmig-remote"
   import org.junit._
 
@@ -32,6 +32,8 @@ class Remote extends PartestSuite {
         var c = true
         loopWhile(c) {
           react {
+            case 1 =>
+              print("1")
             case x: Int =>
               // do task
               println("do task " + x)
@@ -50,8 +52,9 @@ class Remote extends PartestSuite {
 
     actor {
       val myRemoteActor = select(Node("127.0.0.1", 2014), 'myActor)
-      myRemoteActor ! 41
+      for (_ <- 0 until 100) myRemoteActor ! 1
       myRemoteActor ! 42
+      for (_ <- 0 until 100) myRemoteActor ! 1
     }
 
     Await.ready(finishedScala.future, 5 seconds)
@@ -65,6 +68,8 @@ class Remote extends PartestSuite {
       }
 
       def receive = {
+        case 1 =>
+          print("1")
         case x: Int =>
           // do task
           println("do task " + x)
@@ -78,12 +83,12 @@ class Remote extends PartestSuite {
     actor {
       val myRemoteActor = selectActorRef(Node("127.0.0.1", 2013), 'myActorAkka)
 
-      // this is not deterministic
-      myRemoteActor ! 41
+      for (_ <- 0 until 100) myRemoteActor ! 1
       myRemoteActor ! 42
+      for (_ <- 0 until 100) myRemoteActor ! 1
     }
 
-    Await.ready(finishedAkka.future, 5 seconds)
+    Await.ready(finishedAkka.future, 10 seconds)
     assertPartest()
   }
 

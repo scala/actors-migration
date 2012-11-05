@@ -14,7 +14,7 @@ import scala.concurrent.duration._
 import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PublicMethods3 extends PartestSuite {
+class PublicMethods3 extends PartestSuite with ActorSuite {
   val checkFile = "actmig-public-methods"
   import org.junit._
 

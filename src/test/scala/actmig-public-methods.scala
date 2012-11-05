@@ -9,7 +9,7 @@ import scala.actors._
 import scala.util.continuations._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 
-class PublicMethods extends PartestSuite {
+class PublicMethods extends PartestSuite with ActorSuite {
   val checkFile = "actmig-public-methods"
   import org.junit._
 

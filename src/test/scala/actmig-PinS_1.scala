@@ -9,7 +9,7 @@ import scala.actors.migration._
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-class PinS1 extends PartestSuite {
+class PinS1 extends PartestSuite with ActorSuite {
   val checkFile = "actmig-PinS"
   import org.junit._
 

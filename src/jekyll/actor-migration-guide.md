@@ -302,6 +302,7 @@ devise a translation based on these two.
             react (({
               case msg =>
                 // process
+              ...
               case "exit" => 
                 c = false
             }: PartialFunction[Any, Unit]).andThen { x =>

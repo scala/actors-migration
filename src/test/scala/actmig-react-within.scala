@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-class ReactWithin extends PartestSuite {
+class ReactWithin extends PartestSuite with ActorSuite {
   val checkFile = "actmig-react-within"
   import org.junit._
 

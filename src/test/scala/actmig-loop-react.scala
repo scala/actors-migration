@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
-class LoopReact extends PartestSuite {
+class LoopReact extends PartestSuite with ActorSuite {
   val checkFile = "actmig-loop-react"
   import org.junit._
 
@@ -19,7 +19,6 @@ class LoopReact extends PartestSuite {
   val finishedLWCR1, finishedEH1 = Promise[Boolean]
 
   def testLoopWithConditionReact() = {
-    // Snippet showing composition of receives
     // Loop with Condition Snippet - before
     val myActor = actor {
       var c = true
