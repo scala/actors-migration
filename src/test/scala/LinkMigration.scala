@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 class LinkMigration extends PartestSuite with ActorSuite {
   val checkFile = "link-migration"
 
-  @Test
+  @Test(timeout = 10000)
   def linkMigration(): Unit = {
     val finished = Promise[Boolean]
     val normalActor = actor {
@@ -33,7 +33,7 @@ class LinkMigration extends PartestSuite with ActorSuite {
     assertPartest()
   }
 
-  @Test
+  @Test(timeout = 10000)
   def linkMigrationStep2(): Unit = {
     val finished = Promise[Boolean]
     val normalActor = ActorDSL.actor(new Actor {
@@ -60,7 +60,7 @@ class LinkMigration extends PartestSuite with ActorSuite {
     assertPartest()
   }
 
-  @Test
+  @Test(timeout = 10000)
   def linkMigrationStep4(): Unit = {
     val finished = Promise[Boolean]
     val normalActor = ActorDSL.actor(new ActWithStash {

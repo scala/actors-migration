@@ -20,13 +20,14 @@ class Remote extends PartestSuite with ActorSuite {
 
   val finishedScala, finishedAkka = Promise[Boolean]
 
-  @Test(timeout = 10000)
+  @Test(timeout = 20000)
   def test(): Unit = {
+    val port: Int = 40000 + (Math.random * 20000.0).toInt
     // Snippet showing composition of receives
     // Loop with Condition Snippet - before
     class RActor extends Actor {
       def act {
-        alive(2014)
+        alive(port)
         register('myActor, this)
         println("registered")
         var c = true
@@ -51,13 +52,13 @@ class Remote extends PartestSuite with ActorSuite {
     myActor.start()
 
     actor {
-      val myRemoteActor = select(Node("127.0.0.1", 2014), 'myActor)
+      val myRemoteActor = select(Node("127.0.0.1", port), 'myActor)
       for (_ <- 0 until 100) myRemoteActor ! 1
       myRemoteActor ! 42
       for (_ <- 0 until 100) myRemoteActor ! 1
     }
 
-    Await.ready(finishedScala.future, 5 seconds)
+    Await.ready(finishedScala.future, 10 seconds)
 
     // Loop with Condition Snippet - migrated
     val myAkkaActor = ActorDSL.actor(new ActWithStash {

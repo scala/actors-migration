@@ -20,12 +20,13 @@ class RemoteActorSelf extends PartestSuite with ActorSuite {
 
   val finished = Promise[Boolean]
 
-  @Test(timeout = 10000)
+  @Test(timeout = 20000)
   def test(): Unit = {
+    val port: Int = 20000 + (Math.random * 20000.0).toInt
     // Can fail with class cast exception in alive
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
-        alive(2011)
+        alive(port)
         println("registered")
         finished success true
         context.stop(self)
@@ -35,7 +36,7 @@ class RemoteActorSelf extends PartestSuite with ActorSuite {
         case x: Int =>
       }
     })
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 10 seconds)
     assertPartest()
   }
 

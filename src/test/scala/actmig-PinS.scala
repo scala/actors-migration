@@ -120,7 +120,7 @@ class PinS extends PartestSuite with ActorSuite {
       }
     }
 
-    Thread.sleep(2000)
+    Thread.sleep(7000)
     assertPartest()
   }
 }
