@@ -20,7 +20,7 @@ class Remote extends PartestSuite {
 
   val finishedScala, finishedAkka = Promise[Boolean]
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
     // Snippet showing composition of receives
     // Loop with Condition Snippet - before

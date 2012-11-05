@@ -16,9 +16,8 @@ class ReactReceive extends PartestSuite {
   import org.junit._
 
   val finishedRS, finishedRS1, finishedRSC, finishedRSC1 = Promise[Boolean]
-  def testComposition() = {
-    // Snippet showing composition of receives
-    // React Snippet - before
+  def testConsecutive() = {
+    // Snippet showing consecutive receives
     val myActor = actor {
       // do before
       println("do before")
@@ -72,7 +71,7 @@ class ReactReceive extends PartestSuite {
     Await.ready(finishedRSC.future, 5 seconds)
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
     // React Snippet - before
     val myActor = actor {
@@ -114,7 +113,7 @@ class ReactReceive extends PartestSuite {
 
     Await.ready(finishedRS.future, 5 seconds)
     // Starting composition test
-    testComposition()
-
+    testConsecutive()
+    assertPartest()
   }
 }

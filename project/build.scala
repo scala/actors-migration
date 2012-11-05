@@ -68,7 +68,7 @@ object MigraitonDef extends Build {
 
   def dependencies(sv: String) = Seq(
     // "org.scala-lang" % "scala-actors" % sv
-    "junit" % "junit" % "4.5" % "test",
+    "junit" % "junit" % "4.10" % "test",
     "com.novocode" % "junit-interface" % "0.7" % "test->default"
   )
 

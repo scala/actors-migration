@@ -3,13 +3,14 @@
  * code in these tests prior to the 2.10.0 release please send the notification to @vjovanov.
  */
 package scala.actors.migration
+
 import scala.actors._
 import scala.actors.migration._
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
 class PinS1 extends PartestSuite {
-  val checkFile = "actormig-PinS_1"
+  val checkFile = "actmig-PinS"
   import org.junit._
 
   object SillyActor {
@@ -73,7 +74,7 @@ class PinS1 extends PartestSuite {
 
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
 
     /* PinS, Listing 32.2: An actor that calls receive
@@ -142,5 +143,8 @@ class PinS1 extends PartestSuite {
         }
       }
     })
+
+    Thread.sleep(2000)
+    assertPartest()
   }
 }

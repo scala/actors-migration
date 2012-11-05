@@ -33,7 +33,7 @@ class Hierarchy extends PartestSuite {
     }
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
     val reactorActor = new ReactorActor
     val replyActor = new ReplyActor

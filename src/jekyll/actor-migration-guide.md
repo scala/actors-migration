@@ -233,13 +233,13 @@ and all actors are accessed through the `ActorRef` interface.
 Now we need to change all actors to the `ActWithStash` class from the AMK. This class behaves exactly the same like Scala `Actor`
 but, additionally, provides methods that correspond to methods in Akka's `Actor` trait. This allows easy, step by step, migration to the Akka behavior.
 
-To change user base to the new type of actor all actors should extend the `ActWithStash` instead of the `Actor`. Apply the 
+To achieve this all classes that extend `Actor` should extend the `ActWithStash`. Apply the 
 following rule:
 
     class MyActor extends Actor -> class MyActor extends ActWithStash
 
 After this change code will not compile. The `ActWithStash` trait does not support `receive`/`receiveWithin` methods. These methods need to be replaced with usage of `react`/`reactWithin`. 
-We present the transformation for two simplest scenarios: series of receives, and receive within a loop. For other scenarions users should 
+We present the transformation for two simplest scenarios: series of receives, and receive within a loop. For other scenarios users should 
 devise a translation based on these two.
 
 1. Series of `receive` methods with code before and after
@@ -568,13 +568,13 @@ one of the actors terminates abnormally.
 needs to be applied:
 
     case Exit(actor, reason) =>
-            println("too bad because of your " + reason)
+            println("sorry about your " + reason)
             ...
 
     should be replaced with
 
     case t @ Terminated(actorRef) =>
-          println("too bad because of your " + t.reason)
+          println("sorry about your " + t.reason)
           ...
 
    NOTE: There is another subtle difference between Scala and Akka actors. In Scala, `link`/`watch` to the already dead actor will not have affect.
@@ -594,16 +594,6 @@ from scala to Akka. Following is the non-exhaustive list of package names that n
     scala.actors._ -> akka.actor._
     scala.actors.migration.pattern.ask -> akka.pattern.ask
     scala.actors.migration.Timeout -> akka.util.Timeout
-
-Occurrences of `ActWithStash` must be replaced with `ActWithStash`
-(in the `akka.actor.ActorDSL` object). This can be done conveniently
-using a renaming import (using an import selector clause):
-
-    import akka.actor.ActorDSL.{ ActWithStash => ActWithStash }
-
-This imports Akka's `ActWithStash` and renames it to
-`ActWithStash`. This way, it is not necessary to textually replace
-all occurrences of `ActWithStash`.
 
 Also, method declarations `def receive =` in `ActWithStash` should be prepended with `override`.
 

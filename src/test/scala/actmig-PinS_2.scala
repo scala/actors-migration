@@ -9,7 +9,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
 class PinS2 extends PartestSuite {
-  val checkFile = "actormig-PinS_2"
+  val checkFile = "actmig-PinS"
   import org.junit._
   object SillyActor {
     val startPromise = Promise[Boolean]()
@@ -80,7 +80,7 @@ class PinS2 extends PartestSuite {
 
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
 
     /* PinS, Listing 32.2: An actor that calls receive
@@ -161,5 +161,7 @@ class PinS2 extends PartestSuite {
         }
       }
     })
+    Thread.sleep(2000)
+    assertPartest()
   }
 }

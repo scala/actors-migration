@@ -3,6 +3,7 @@
  * code in these tests prior to the 2.10.0 release please send the notification to @vjovanov.
  */
 package scala.actors.migration
+
 import scala.collection.mutable.ArrayBuffer
 import scala.actors.Actor._
 import scala.actors._
@@ -16,7 +17,7 @@ import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class PublicMethods1 extends PartestSuite {
-  val checkFile = "actormig-public-methods_1"
+  val checkFile = "actmig-public-methods"
   import org.junit._
 
   val NUMBER_OF_TESTS = 8
@@ -30,7 +31,7 @@ class PublicMethods1 extends PartestSuite {
     buff += v
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
 
     val respActor = ActorDSL.actor(new Actor {
@@ -148,5 +149,6 @@ class PublicMethods1 extends PartestSuite {
 
     buff.sorted.foreach(println)
     toStop.foreach(_ ! PoisonPill)
+    assertPartest()
   }
 }

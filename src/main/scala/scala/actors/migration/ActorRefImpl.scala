@@ -6,8 +6,6 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
-
 private[actors] class OutputChannelRef(val actor: OutputChannel[Any]) extends ActorRef {
 
   override private[actors] def ?(message: Any, timeout: Duration): scala.concurrent.Future[Any] =
@@ -24,14 +22,12 @@ private[actors] class OutputChannelRef(val actor: OutputChannel[Any]) extends Ac
    * <p/>
    */
   def !(message: Any)(implicit sender: ActorRef = null): Unit =
-    if (sender != null)
-      actor.send(message, OutputChannelExtractor.extractOutputChannel(sender))
-    else {
-      if (!Actor.self.isInstanceOf[scala.actors.ActorProxy])
-        actor ! message // attaches self as a sender
-      else
-        actor.send(message, null)
-    }
+    actor.send(message, sender match {
+      case null => null
+      case x: ReactorRef => x.actor
+      case x: OutputChannelRef => x.actor
+      case x => x.localActor
+    })
 
   override def equals(that: Any) =
     that.isInstanceOf[OutputChannelRef] && that.asInstanceOf[OutputChannelRef].actor == this.actor
@@ -76,21 +72,9 @@ private[actors] final class InternalActorRef(override val actor: InternalActor) 
   override def !(message: Any)(implicit sender: ActorRef = null): Unit =
     if (message == PoisonPill)
       actor.stop('normal)
-    else if (sender != null)
-      actor.send(message, OutputChannelExtractor.extractOutputChannel(sender))
     else
-      actor ! message
+      super.!(message)(sender)
 
   private[actors] override def localActor: InternalActor = this.actor
-
 }
 
-private[migration] object OutputChannelExtractor {
-
-  // FIXME: The OutputChannelActorRef does not have the extractor. Too late to change Scala.
-  def extractOutputChannel(a: ActorRef) = a match {
-    case x: ReactorRef => x.actor
-    case x: OutputChannelRef => x.actor
-    case x => x.localActor
-  }
-}

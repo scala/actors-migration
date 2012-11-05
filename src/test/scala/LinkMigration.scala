@@ -17,7 +17,7 @@ class LinkMigration extends PartestSuite {
       self.trapExit = true
       react {
         case Exit(_, reason) =>
-          println("too bad because of your " + reason)
+          println("sorry about your " + reason)
           finished success true
       }
     }
@@ -41,7 +41,7 @@ class LinkMigration extends PartestSuite {
         self.trapExit = true
         react {
           case Exit(_, reason) =>
-            println("too bad because of your " + reason)
+            println("sorry about your " + reason)
             finished success true
         }
       }
@@ -66,7 +66,7 @@ class LinkMigration extends PartestSuite {
     val normalActor = ActorDSL.actor(new ActWithStash {
       def receive = {
         case t @ Terminated(_) =>
-          println("too bad because of your " + t.reason)
+          println("sorry about your " + t.reason)
           finished success true
           context.stop(self)
       }

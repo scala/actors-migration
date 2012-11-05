@@ -43,12 +43,12 @@ class Receive extends PartestSuite {
     println("Transformed")
     val myActorReact = actor {
       println("do before")
-      react (({
+      react(({
         case "hello" =>
           println("receive 1")
       }: PartialFunction[Any, Unit]).andThen { x =>
         println("do in between")
-        react (({
+        react(({
           case "hello" =>
             println("receive 1")
         }: PartialFunction[Any, Unit]).andThen { x =>
@@ -94,7 +94,7 @@ class Receive extends PartestSuite {
       var c = true
       loopWhile(c) {
         println("do before body")
-        react (({
+        react(({
           case "hello" =>
             println("receive 1")
           case "exit" =>
@@ -115,7 +115,7 @@ class Receive extends PartestSuite {
     Await.ready(finishedLoop1.future, 5 seconds)
   }
 
-    @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
     testDoubleReceive()
     testLoopReceive()

@@ -10,7 +10,7 @@ import scala.util.continuations._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 
 class PublicMethods extends PartestSuite {
-  val checkFile = "actormig-public-methods"
+  val checkFile = "actmig-public-methods"
   import org.junit._
 
   val NUMBER_OF_TESTS = 8
@@ -24,7 +24,7 @@ class PublicMethods extends PartestSuite {
     buff += v
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
 
     val respActor = actor {
@@ -110,5 +110,6 @@ class PublicMethods extends PartestSuite {
     }
     buff.sorted.foreach(println)
     toStop.foreach(_ ! 'stop)
+    assertPartest()
   }
 }

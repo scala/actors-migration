@@ -17,6 +17,7 @@ class ReactWithin extends PartestSuite {
 
   val finished = Promise[Boolean]
 
+  @Test(timeout = 10000)
   def testReactWithin() = {
     val sActor = actor {
       loop {
@@ -41,12 +42,8 @@ class ReactWithin extends PartestSuite {
           println("Should not occur.")
       }
     })
-  }
-
-    @Test(timeout=10000)
-  def test(): Unit = {
-    testReactWithin()
     Await.ready(finished.future, 5 seconds)
+    assertPartest()
   }
 
 }

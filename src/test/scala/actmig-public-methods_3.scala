@@ -15,7 +15,7 @@ import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class PublicMethods3 extends PartestSuite {
-  val checkFile = "actormig-public-methods_3"
+  val checkFile = "actmig-public-methods"
   import org.junit._
 
   val NUMBER_OF_TESTS = 8
@@ -29,7 +29,7 @@ class PublicMethods3 extends PartestSuite {
     buff += v
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
 
     val respActor = ActorDSL.actor(new ActWithStash {
@@ -141,5 +141,6 @@ class PublicMethods3 extends PartestSuite {
 
     buff.sorted.foreach(println)
     toStop.foreach(_ ! PoisonPill)
+    assertPartest()
   }
 }

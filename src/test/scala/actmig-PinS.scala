@@ -60,7 +60,7 @@ class PinS extends PartestSuite {
 
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test() {
     /* PinS, Listing 32.2: An actor that calls receive
    */

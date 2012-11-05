@@ -31,8 +31,6 @@ trait ActWithStash extends InternalActor {
 
   val self: ActorRef = ref
 
-  implicit def actorSender: ActorRef = new InternalActorRef(Actor.self(Scheduler))
-
   protected[this] val context: ActorContext = new ActorContext(this)
 
   @volatile

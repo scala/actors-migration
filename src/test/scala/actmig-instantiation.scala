@@ -10,7 +10,7 @@ import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import scala.collection.mutable.ArrayBuffer
 
 class Instatiation extends PartestSuite {
-  val checkFile = "actmig-instatiation"
+  val checkFile = "actmig-instantiation"
   import org.junit._
 
   class TestActWithStash extends ActWithStash {
@@ -30,7 +30,7 @@ class Instatiation extends PartestSuite {
     buff += v
   }
 
-  @Test(timeout=10000)
+  @Test(timeout = 10000)
   def test(): Unit = {
     // plain scala actor
     val a1 = actor {
@@ -96,5 +96,6 @@ class Instatiation extends PartestSuite {
 
     buff.sorted.foreach(println)
     toStop.foreach(_ ! PoisonPill)
+    assertPartest()
   }
 }
