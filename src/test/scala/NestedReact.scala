@@ -13,7 +13,7 @@ class NestedReact extends PartestSuite with ActorSuite {
 
   val checkFile = "nested-react"
 
-  @Test(timeout = 10000)
+  @Test
   def testNestedReact() = {
     val finished = Promise[Boolean]
     // Snippet showing composition of receives
@@ -48,11 +48,12 @@ class NestedReact extends PartestSuite with ActorSuite {
     myActor ! "I am a String 3"
 
     myActor ! 42
-    Await.ready(finished.future, 5 seconds)
+
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 
-  @Test(timeout = 10000)
+  @Test
   def testNestedReactAkka() = {
     val finished = Promise[Boolean]
     // Loop with Condition Snippet - migrated
@@ -66,7 +67,8 @@ class NestedReact extends PartestSuite with ActorSuite {
             println("after react")
             finished.success(true)
             context.stop(self)
-          } else
+          } else {
+            unstashAll()
             context.become(({
               case y: String =>
                 println("do string " + y)
@@ -74,10 +76,13 @@ class NestedReact extends PartestSuite with ActorSuite {
               unstashAll()
               context.unbecome()
             } orElse {
-              case x => stash(x)
+              case x =>
+                stash(x)
             })
-      }: Receive) andThen { x => unstashAll() } orElse {
-        case x => stash(x)
+          }
+      }: Receive) orElse {
+        case x =>
+          stash(x)
       }
     })
 
@@ -90,7 +95,7 @@ class NestedReact extends PartestSuite with ActorSuite {
 
     myAkkaActor ! 42
 
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 

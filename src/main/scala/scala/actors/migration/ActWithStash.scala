@@ -148,7 +148,7 @@ trait ActWithStash extends InternalActor {
    *  certain messaging protocols.
    */
   final def stash(msg: Any): Unit = {
-    stash.append(msg, null)
+    stash.append(msg, internalSender)
   }
 
   final def unstashAll(): Unit = {
@@ -177,11 +177,13 @@ trait ActWithStash extends InternalActor {
     })
   }
 
+  /* Must be in the constructor or else the Exit message can be skipped */
+  trapExit = true
+
   /**
    * Method that models the behavior of Akka actors.
    */
   private[actors] def internalAct() {
-    trapExit = true
     behaviorStack = behaviorStack.push(wrapWithSystemMessageHandling(receive))
     loop {
       if (myTimeout.isDefined)
@@ -260,7 +262,6 @@ trait ActWithStash extends InternalActor {
 class DeathPactException(ref: ActorRef = null) extends Exception {
   override def fillInStackTrace() = this //Don't waste cycles generating stack trace
 }
-
 
 /**
  * Message that is sent to a watching actor when the watched actor terminates.

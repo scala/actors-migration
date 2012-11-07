@@ -14,15 +14,17 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
+/**
+ * Test that shows migration of Scala remote actors into Akka.
+ */
 class Remote extends PartestSuite with ActorSuite {
   val checkFile = "actmig-remote"
   import org.junit._
 
-  val finishedScala, finishedAkka = Promise[Boolean]
-
-  @Test(timeout = 20000)
-  def test(): Unit = {
-    val port: Int = 40000 + (Math.random * 20000.0).toInt
+  @Test
+  def testScala(): Unit = {
+    val finished, finishedInit = Promise[Boolean]
+    val port: Int = 10000 + (Math.random * 10000.0).toInt
     // Snippet showing composition of receives
     // Loop with Condition Snippet - before
     class RActor extends Actor {
@@ -30,6 +32,8 @@ class Remote extends PartestSuite with ActorSuite {
         alive(port)
         register('myActor, this)
         println("registered")
+        finishedInit success true
+
         var c = true
         loopWhile(c) {
           react {
@@ -39,8 +43,9 @@ class Remote extends PartestSuite with ActorSuite {
               // do task
               println("do task " + x)
               if (x == 42) {
+                println("exit")
                 c = false
-                finishedScala.success(true)
+                finished success true
               }
             case _ => println("here")
           }
@@ -50,22 +55,29 @@ class Remote extends PartestSuite with ActorSuite {
 
     val myActor = new RActor
     myActor.start()
+    Await.ready(finishedInit.future, 20 seconds)
 
     actor {
       val myRemoteActor = select(Node("127.0.0.1", port), 'myActor)
       for (_ <- 0 until 100) myRemoteActor ! 1
       myRemoteActor ! 42
-      for (_ <- 0 until 100) myRemoteActor ! 1
     }
 
-    Await.ready(finishedScala.future, 10 seconds)
+    Await.ready(finished.future, 20 seconds)
+    assertPartest()
+  }
 
+  @Test
+  def testAkka(): Unit = {
+    val finished, finishedInit = Promise[Boolean]
+    val port: Int = 20000 + (Math.random * 10000.0).toInt
     // Loop with Condition Snippet - migrated
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
-        alive(2013)
+        alive(port)
         registerActorRef('myActorAkka, self)
         println("registered")
+        finishedInit success true
       }
 
       def receive = {
@@ -75,21 +87,28 @@ class Remote extends PartestSuite with ActorSuite {
           // do task
           println("do task " + x)
           if (x == 42) {
-            finishedAkka.success(true)
-            context.stop(self)
+            println("exit")
+            finished success true 
           }
       }
     })
 
-    actor {
-      val myRemoteActor = selectActorRef(Node("127.0.0.1", 2013), 'myActorAkka)
+    Await.ready(finishedInit.future, 20 seconds)
 
-      for (_ <- 0 until 100) myRemoteActor ! 1
-      myRemoteActor ! 42
-      for (_ <- 0 until 100) myRemoteActor ! 1
-    }
+    val sender = ActorDSL.actor(new ActWithStash {
+      override def preStart() = {
+        val myRemoteActor = selectActorRef(Node("127.0.0.1", port), 'myActorAkka)
 
-    Await.ready(finishedAkka.future, 10 seconds)
+        for (_ <- 0 until 100) myRemoteActor ! 1
+        myRemoteActor ! 42
+      }
+
+      def receive = { case _ => }
+    })
+
+    Await.ready(finished.future, 20 seconds)
+    sender ! PoisonPill
+    myAkkaActor ! PoisonPill
     assertPartest()
   }
 

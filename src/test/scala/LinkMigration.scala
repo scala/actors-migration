@@ -10,35 +10,40 @@ import scala.concurrent.duration._
 class LinkMigration extends PartestSuite with ActorSuite {
   val checkFile = "link-migration"
 
-  @Test(timeout = 10000)
+  @Test
   def linkMigration(): Unit = {
     val finished = Promise[Boolean]
-    val normalActor = actor {
-      self.trapExit = true
-      react {
-        case Exit(_, reason) =>
-          println("sorry about your " + reason)
-          finished success true
+    val normalActor = new Actor {
+      trapExit = true
+      def act() = {
+        react {
+          case Exit(_, reason) =>
+            println("sorry about your " + reason)
+            finished success true
+        }
       }
     }
+    normalActor.start()
 
-    val suicideActor = actor {
-      self.trapExit = true
-      link(normalActor)
-      println("life sucks")
-      self.exit('suicide)
+    val suicideActor = new Actor {
+      def act() = {
+        link(normalActor)
+        println("life sucks")
+        self.exit('suicide)
+      }
     }
+    suicideActor.start()
 
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 
-  @Test(timeout = 10000)
+  @Test
   def linkMigrationStep2(): Unit = {
     val finished = Promise[Boolean]
     val normalActor = ActorDSL.actor(new Actor {
+      trapExit = true
       def act() = {
-        self.trapExit = true
         react {
           case Exit(_, reason) =>
             println("sorry about your " + reason)
@@ -49,18 +54,17 @@ class LinkMigration extends PartestSuite with ActorSuite {
 
     val suicideActor = ActorDSL.actor(new Actor {
       def act() = {
-        self.trapExit = true
         link(normalActor)
         println("life sucks")
         self.exit('suicide)
       }
     })
 
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 
-  @Test(timeout = 10000)
+  @Test
   def linkMigrationStep4(): Unit = {
     val finished = Promise[Boolean]
     val normalActor = ActorDSL.actor(new ActWithStash {
@@ -72,18 +76,17 @@ class LinkMigration extends PartestSuite with ActorSuite {
       }
     })
 
-    // TODO mention that self exit is always true
     val suicideActor = ActorDSL.actor(new ActWithStash {
       override def preStart() = {
         link(normalActor)
         println("life sucks")
-        exit('suicide) // TODO mention in the guide
+        exit('suicide)
       }
 
       def receive = { case _ => }
     })
 
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 }

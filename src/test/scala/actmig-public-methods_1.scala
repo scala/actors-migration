@@ -16,6 +16,9 @@ import scala.concurrent.duration._
 import scala.actors.migration.pattern._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+/*
+ * Test that shows how Scala Actors' public methods are translated to
+ */
 class PublicMethods1 extends PartestSuite with ActorSuite {
   val checkFile = "actmig-public-methods"
   import org.junit._
@@ -31,8 +34,8 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
     buff += v
   }
 
-  @Test(timeout = 10000)
-  def test(): Unit = {
+  @Test
+  def test1(): Unit = {
 
     val respActor = ActorDSL.actor(new Actor {
       def act() = {
@@ -78,7 +81,7 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
     }
 
     {
-      val msg = ("bang qmark", 5000L)
+      val msg = ("bang qmark", 2000L)
       val res = respActor.?(msg)(Timeout(1 millisecond))
       val promise = Promise[Option[Any]]()
       res.onComplete(v => promise.success(v.toOption))
@@ -110,13 +113,13 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
         def act() = {
           val msg = ("reply from an actor", 0L)
           respActor ! msg
-          receiveWithin(10000) {
+          receive {
             case a: String =>
               append(a)
               reply(msg)
           }
 
-          reactWithin(10000) {
+          react {
             case a: String =>
               append(a)
               latch.countDown()
@@ -142,13 +145,15 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
     }
 
     // output
-    latch.await(20, TimeUnit.SECONDS)
-    if (latch.getCount() > 0) {
-      println("Error: Tasks have not finished!!!")
+    try
+      latch.await(20, TimeUnit.SECONDS)
+    finally {
+      if (latch.getCount() > 0) {
+        println("Error: Tasks have not finished!!!")
+      }
+      buff.sorted.foreach(println)
+      toStop.foreach(_ ! 'stop)
     }
-
-    buff.sorted.foreach(println)
-    toStop.foreach(_ ! PoisonPill)
     assertPartest()
   }
 }

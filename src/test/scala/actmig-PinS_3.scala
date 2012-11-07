@@ -8,6 +8,9 @@ import scala.actors.migration._
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
+/*
+ * Examples from the book Programming in Scala
+ */
 class PinS3 extends PartestSuite with ActorSuite {
   val checkFile = "actmig-PinS"
   import org.junit._
@@ -22,15 +25,14 @@ class PinS3 extends PartestSuite with ActorSuite {
     def receive = { case _ => println("Why are you not dead"); context.stop(self) }
 
     override def preStart() {
-      Await.ready(SillyActor.startPromise.future, 5 seconds)
+      Await.ready(SillyActor.startPromise.future, 20 seconds)
       for (i <- 1 to 5)
         println("I'm acting!")
+
+      println("Post stop")
       context.stop(self)
     }
 
-    override def postStop() {
-      println("Post stop")
-    }
   }
 
   object SeriousActor {
@@ -41,7 +43,7 @@ class PinS3 extends PartestSuite with ActorSuite {
   class SeriousActor extends ActWithStash {
     def receive = { case _ => println("Nop") }
     override def preStart() {
-      Await.ready(SeriousActor.startPromise.future, 5 seconds)
+      Await.ready(SeriousActor.startPromise.future, 20 seconds)
       for (i <- 1 to 5)
         println("To be or not to be.")
       context.stop(self)
@@ -77,9 +79,9 @@ class PinS3 extends PartestSuite with ActorSuite {
 
   }
 
-  @Test(timeout = 10000)
-  def test(): Unit = {
-
+  @Test
+  def test3(): Unit = {
+    val finished = Promise[Boolean]
     /* PinS, Listing 32.2: An actor that calls receive
    */
     def makeEchoActor(): ActorRef = ActorDSL.actor(new ActWithStash {
@@ -100,8 +102,10 @@ class PinS3 extends PartestSuite with ActorSuite {
         case x: Int => // I only want Ints
           unstashAll()
           println("Got an Int: " + x)
+          // mark the end of a test
+          if (x == 12) finished success true
           context.stop(self)
-        case _ => stash()
+        case m => stash(m)
       }
     })
 
@@ -115,6 +119,7 @@ class PinS3 extends PartestSuite with ActorSuite {
 
       def receive = {
         case Terminated(`silly`) =>
+          println("Exit arrived")
           unstashAll()
           val serious = SeriousActor.ref
           context.watch(SeriousActor.ref)
@@ -136,7 +141,7 @@ class PinS3 extends PartestSuite with ActorSuite {
                   }
                 })
 
-              Await.ready(seriousPromise2.future, 5 seconds)
+              Await.ready(seriousPromise2.future, 20 seconds)
               val echoActor = makeEchoActor()
               context.watch(echoActor)
               echoActor ! "hi there"
@@ -167,7 +172,7 @@ class PinS3 extends PartestSuite with ActorSuite {
       }
     })
 
-    Thread.sleep(7000)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 }

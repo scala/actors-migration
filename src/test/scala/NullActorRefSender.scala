@@ -10,7 +10,7 @@ import scala.actors.migration._
 
 class NullActorRefSender extends ActorSuite {
 
-  @Test(timeout = 10000)
+  @Test
   def test(): Unit = {
     val finished = Promise[Boolean]
     // asserts the value of the sender
@@ -54,7 +54,7 @@ class NullActorRefSender extends ActorSuite {
     }
 
     // finish the test
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 20 seconds)
 
   }
 

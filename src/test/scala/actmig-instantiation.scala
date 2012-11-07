@@ -9,6 +9,9 @@ import scala.actors._
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import scala.collection.mutable.ArrayBuffer
 
+/*
+ * Tests the instantiation of actors with the ActorDSL.
+ */
 class Instatiation extends PartestSuite with ActorSuite {
   val checkFile = "actmig-instantiation"
   import org.junit._
@@ -30,7 +33,7 @@ class Instatiation extends PartestSuite with ActorSuite {
     buff += v
   }
 
-  @Test(timeout = 10000)
+  @Test
   def test(): Unit = {
     // plain scala actor
     val a1 = actor {
@@ -89,13 +92,15 @@ class Instatiation extends PartestSuite with ActorSuite {
     }
 
     // output
-    latch.await(5, TimeUnit.SECONDS)
-    if (latch.getCount() > 0) {
-      println("Error: Tasks have not finished!!!")
+    try
+      latch.await(20, TimeUnit.SECONDS)
+    finally {
+      if (latch.getCount() > 0) {
+        println("Error: Tasks have not finished!!!")
+      }
+      buff.sorted.foreach(println)
+      toStop.foreach(_ ! 'stop)
     }
-
-    buff.sorted.foreach(println)
-    toStop.foreach(_ ! PoisonPill)
     assertPartest()
   }
 }

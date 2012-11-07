@@ -4,18 +4,24 @@
  */
 package scala.actors.migration
 import scala.actors._
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Hierarchy extends PartestSuite with ActorSuite {
   val checkFile = "actmig-hierarchy"
   import org.junit._
 
+  val finishedReactor, finishedReplyReactor = Promise[Boolean]
   class ReactorActor extends Reactor[String] {
     def act() {
       var cond = true
       loopWhile(cond) {
         react {
           case x if x == "hello1" => println("hello")
-          case "exit" => cond = false
+          case "exit" =>
+            cond = false
+            finishedReactor success true
         }
       }
     }
@@ -27,13 +33,15 @@ class Hierarchy extends PartestSuite with ActorSuite {
       loopWhile(cond) {
         react {
           case "hello" => println("hello")
-          case "exit" => cond = false;
+          case "exit" =>
+            cond = false
+            finishedReplyReactor success true
         }
       }
     }
   }
 
-  @Test(timeout = 10000)
+  @Test
   def test(): Unit = {
     val reactorActor = new ReactorActor
     val replyActor = new ReplyActor
@@ -46,7 +54,7 @@ class Hierarchy extends PartestSuite with ActorSuite {
     reactorActor ! "exit"
     replyActor ! "exit"
 
-    Thread.sleep(1000)
+    Await.ready(finishedReplyReactor.future.flatMap(x => finishedReactor.future), 20 seconds)
     assertPartest()
   }
 }

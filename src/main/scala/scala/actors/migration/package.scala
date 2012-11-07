@@ -46,9 +46,26 @@ package object migration {
       ref.forward(msg)
     override def receiver: Actor =
       this
-    def act(): Unit = { /* do nothing */ }
+    def act(): Unit = ???
   }
 
+  /**
+   * This method is used for registering an instance of `ActWithStash` as a remote actor.
+   *
+   *  Example:
+   *  {{{
+   *  val myActor = ActorDSL.actor(new ActWithStash {
+   *    override def preStart() = {
+   *      alive(2013)
+   *      registerActorRef('myActorAkka, self)
+   *    }
+   *
+   *    def receive = {
+   *      ...
+   *    }
+   *  })
+   *  }}}
+   */
   def registerActorRef(name: Symbol, a: ActorRef): Unit =
     RemoteActor.register(name, remoteActorFor(a))
 

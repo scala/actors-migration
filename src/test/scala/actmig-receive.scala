@@ -39,7 +39,7 @@ class Receive extends PartestSuite with ActorSuite {
     myActor ! "hello"
     myActor ! "hello"
 
-    Await.ready(finishedSingle.future, 5 seconds)
+    Await.ready(finishedSingle.future, 20 seconds)
     println("Transformed")
     val myActorReact = actor {
       println("do before")
@@ -61,7 +61,7 @@ class Receive extends PartestSuite with ActorSuite {
     myActorReact ! "hello"
     myActorReact ! "hello"
 
-    Await.ready(finishedSingle1.future, 5 seconds)
+    Await.ready(finishedSingle1.future, 20 seconds)
   }
 
   def testLoopReceive() = {
@@ -87,7 +87,7 @@ class Receive extends PartestSuite with ActorSuite {
 
     myActor ! "hello"
     myActor ! "exit"
-    Await.ready(finishedLoop.future, 5 seconds)
+    Await.ready(finishedLoop.future, 20 seconds)
     println("Transformed")
 
     val myActorReact = actor {
@@ -112,10 +112,10 @@ class Receive extends PartestSuite with ActorSuite {
     myActorReact ! "hello"
     myActorReact ! "exit"
 
-    Await.ready(finishedLoop1.future, 5 seconds)
+    Await.ready(finishedLoop1.future, 20 seconds)
   }
 
-  @Test(timeout = 10000)
+  @Test
   def test(): Unit = {
     testDoubleReceive()
     testLoopReceive()

@@ -11,38 +11,49 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
+/**
+ * This test shows the migration from Scala TIMEOUT to ReceiveTimeout in Akka.
+ */
 class ReactWithin extends PartestSuite with ActorSuite {
   val checkFile = "actmig-react-within"
   import org.junit._
 
-  val finished = Promise[Boolean]
-
-  @Test(timeout = 10000)
-  def testReactWithin() = {
+  @Test
+  def testReactWithinScala() = {
+    val finished = Promise[Boolean]
     val sActor = actor {
       loop {
         reactWithin(1) {
           case scala.actors.TIMEOUT =>
             println("received")
+            finished success true
             exit()
           case _ =>
             println("Should not occur.")
         }
       }
     }
+    Await.ready(finished.future, 20 seconds)
+    assertPartest()
+  }
 
+  @Test
+  def testReactWithinAkka() = {
+    val finished = Promise[Boolean]
     val myActor = ActorDSL.actor(new ActWithStash {
+
       context.setReceiveTimeout(1 millisecond)
+
       def receive = {
         case ReceiveTimeout =>
           println("received")
-          finished.success(true)
-          context.stop(self)
+          finished success true
+          context stop self
         case _ =>
           println("Should not occur.")
       }
     })
-    Await.ready(finished.future, 5 seconds)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 

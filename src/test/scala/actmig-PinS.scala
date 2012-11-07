@@ -60,8 +60,9 @@ class PinS extends PartestSuite with ActorSuite {
 
   }
 
-  @Test(timeout = 10000)
+  @Test
   def test() {
+    val finished = Promise[Boolean]
     /* PinS, Listing 32.2: An actor that calls receive
    */
     def makeEchoActor(): Actor = actor {
@@ -81,6 +82,9 @@ class PinS extends PartestSuite with ActorSuite {
       receive {
         case x: Int => // I only want Ints
           println("Got an Int: " + x)
+
+          // mark the end of a test
+          if (x == 12) finished success true
       }
     }
 
@@ -90,6 +94,7 @@ class PinS extends PartestSuite with ActorSuite {
       SillyActor.start()
       react {
         case Exit(SillyActor, _) =>
+          println("Exit arrived")
           self.link(SeriousActor)
           SeriousActor.start()
           react {
@@ -102,7 +107,7 @@ class PinS extends PartestSuite with ActorSuite {
                 seriousPromise2.success(true)
               }
 
-              Await.ready(seriousPromise2.future, 5 seconds)
+              Await.ready(seriousPromise2.future, 20 seconds)
               val echoActor = makeEchoActor()
               self.link(echoActor)
               echoActor ! "hi there"
@@ -117,10 +122,11 @@ class PinS extends PartestSuite with ActorSuite {
                   intActor ! 12
               }
           }
+        case x => println("Anything? " + x)
       }
     }
 
-    Thread.sleep(7000)
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 }

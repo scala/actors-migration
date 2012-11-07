@@ -4,6 +4,7 @@
  */
 package scala.actors.migration
 import scala.collection.mutable.ArrayBuffer
+
 import scala.actors._
 import scala.actors.migration._
 import scala.util._
@@ -29,8 +30,8 @@ class PublicMethods3 extends PartestSuite with ActorSuite {
     buff += v
   }
 
-  @Test(timeout = 10000)
-  def test(): Unit = {
+  @Test
+  def test3(): Unit = {
 
     val respActor = ActorDSL.actor(new ActWithStash {
       def receive = {
@@ -72,7 +73,7 @@ class PublicMethods3 extends PartestSuite with ActorSuite {
     }
 
     {
-      val msg = ("bang qmark", 5000L)
+      val msg = ("bang qmark", 2000L)
       val res = respActor.?(msg)(Timeout(1 millisecond))
       val promise = Promise[Option[Any]]()
       res.onComplete(v => promise.success(v.toOption))
@@ -106,6 +107,8 @@ class PublicMethods3 extends PartestSuite with ActorSuite {
           respActor ! msg
         }
 
+        context.setReceiveTimeout(100 seconds)
+
         def receive = {
           case a: String =>
             append(a)
@@ -133,14 +136,17 @@ class PublicMethods3 extends PartestSuite with ActorSuite {
         }
       })
     }
-    // output
-    latch.await(10, TimeUnit.SECONDS)
-    if (latch.getCount() > 0) {
-      println("Error: Tasks have not finished!!!")
-    }
 
-    buff.sorted.foreach(println)
-    toStop.foreach(_ ! PoisonPill)
+    // output
+    try
+      latch.await(20, TimeUnit.SECONDS)
+    finally {
+      if (latch.getCount() > 0) {
+        println("Error: Tasks have not finished!!!")
+      }
+      buff.sorted.foreach(println)
+      toStop.foreach(_ ! 'stop)
+    }
     assertPartest()
   }
 }

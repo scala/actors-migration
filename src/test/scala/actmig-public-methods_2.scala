@@ -30,8 +30,8 @@ class PublicMethods2 extends PartestSuite with ActorSuite {
     buff += v
   }
 
-  @Test(timeout = 10000)
-  def test(): Unit = {
+  @Test
+  def test2(): Unit = {
 
     val respActor = ActorDSL.actor(new ActWithStash {
       def receive = { case _ => }
@@ -39,8 +39,9 @@ class PublicMethods2 extends PartestSuite with ActorSuite {
         loop {
           react {
             case (x: String, time: Long) =>
+              System.out.println("Where did the message go?" + x)
               Thread.sleep(time)
-              reply(x + " after " + time)
+              sender ! (x + " after " + time)
             case "forward" =>
               if (self == sender)
                 append("forward succeeded")
@@ -78,7 +79,7 @@ class PublicMethods2 extends PartestSuite with ActorSuite {
     }
 
     {
-      val msg = ("bang qmark", 5000L)
+      val msg = ("bang qmark", 2000L)
       val res = respActor.?(msg)(Timeout(1 millisecond))
       val promise = Promise[Option[Any]]()
       res.onComplete(v => promise.success(v.toOption))
@@ -107,17 +108,21 @@ class PublicMethods2 extends PartestSuite with ActorSuite {
     // test reply (back and forth communication)
     {
       val a = ActorDSL.actor(new ActWithStash {
+
         def receive = { case _ => }
+
         override def act() = {
           val msg = ("reply from an actor", 0L)
           respActor ! msg
-          receiveWithin(5000) {
+
+          // currently replacement for receive
+          receive[Unit]({
             case a: String =>
               append(a)
-              reply(msg)
-          }
+              sender ! msg
+          })
 
-          reactWithin(5000) {
+          react {
             case a: String =>
               append(a)
               latch.countDown()
@@ -137,20 +142,22 @@ class PublicMethods2 extends PartestSuite with ActorSuite {
           react {
             case a: String =>
               append(a)
-              sender forward ("forward")
+              sender forward "forward"
           }
         }
       })
     }
 
     // output
-    latch.await(10, TimeUnit.SECONDS)
-    if (latch.getCount() > 0) {
-      println("Error: Tasks have not finished!!!")
+    try
+      latch.await(20, TimeUnit.SECONDS)
+    finally {
+      if (latch.getCount() > 0) {
+        println("Error: Tasks have not finished!!!")
+      }
+      buff.sorted.foreach(println)
+      toStop.foreach(_ ! 'stop)
     }
-
-    buff.sorted.foreach(println)
-    toStop.foreach(_ ! PoisonPill)
     assertPartest()
   }
 }

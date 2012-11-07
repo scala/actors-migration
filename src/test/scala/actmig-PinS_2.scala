@@ -8,6 +8,9 @@ import scala.actors.migration._
 import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
+/*
+ * Examples from the book Programming in Scala
+ */
 class PinS2 extends PartestSuite with ActorSuite {
   val checkFile = "actmig-PinS"
   import org.junit._
@@ -23,7 +26,7 @@ class PinS2 extends PartestSuite with ActorSuite {
     def receive = { case _ => println("Nop") }
 
     override def act() {
-      Await.ready(SillyActor.startPromise.future, 5 seconds)
+      Await.ready(SillyActor.startPromise.future, 20 seconds)
       for (i <- 1 to 5)
         println("I'm acting!")
 
@@ -39,7 +42,7 @@ class PinS2 extends PartestSuite with ActorSuite {
   class SeriousActor extends ActWithStash {
     def receive = { case _ => println("Nop") }
     override def act() {
-      Await.ready(SeriousActor.startPromise.future, 5 seconds)
+      Await.ready(SeriousActor.startPromise.future, 20 seconds)
       for (i <- 1 to 5)
         println("To be or not to be.")
     }
@@ -80,9 +83,9 @@ class PinS2 extends PartestSuite with ActorSuite {
 
   }
 
-  @Test(timeout = 10000)
-  def test(): Unit = {
-
+  @Test
+  def test2(): Unit = {
+    val finished = Promise[Boolean]
     /* PinS, Listing 32.2: An actor that calls receive
    */
     def makeEchoActor(): ActorRef = ActorDSL.actor(
@@ -111,6 +114,8 @@ class PinS2 extends PartestSuite with ActorSuite {
         react {
           case x: Int => // I only want Ints
             println("Got an Int: " + x)
+            // mark the end of a test
+            if (x == 12) finished success true
         }
       }
     })
@@ -125,6 +130,7 @@ class PinS2 extends PartestSuite with ActorSuite {
         SillyActor.startPromise.success(true)
         react {
           case Exit(_: SillyActor, _) =>
+            println("Exit arrived")
             link(SeriousActor.ref)
             SeriousActor.startPromise.success(true)
             react {
@@ -143,7 +149,7 @@ class PinS2 extends PartestSuite with ActorSuite {
                     }
                   })
 
-                Await.ready(seriousPromise2.future, 5 seconds)
+                Await.ready(seriousPromise2.future, 20 seconds)
                 val echoActor = makeEchoActor()
                 link(echoActor)
                 echoActor ! "hi there"
@@ -161,7 +167,8 @@ class PinS2 extends PartestSuite with ActorSuite {
         }
       }
     })
-    Thread.sleep(7000)
+
+    Await.ready(finished.future, 20 seconds)
     assertPartest()
   }
 }

@@ -38,7 +38,7 @@ class ReactReceive extends PartestSuite with ActorSuite {
     myActor.start()
     myActor ! 1
     myActor ! "1"
-    Await.ready(finishedRSC1.future, 5 seconds)
+    Await.ready(finishedRSC1.future, 20 seconds)
 
     // React Snippet - migrated
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
@@ -68,10 +68,10 @@ class ReactReceive extends PartestSuite with ActorSuite {
     })
     myAkkaActor ! 1
     myAkkaActor ! "1"
-    Await.ready(finishedRSC.future, 5 seconds)
+    Await.ready(finishedRSC.future, 20 seconds)
   }
 
-  @Test(timeout = 10000)
+  @Test
   def test(): Unit = {
     // React Snippet - before
     val myActor = actor {
@@ -88,7 +88,7 @@ class ReactReceive extends PartestSuite with ActorSuite {
     myActor.start()
     myActor ! 1
 
-    Await.ready(finishedRS1.future, 5 seconds)
+    Await.ready(finishedRS1.future, 20 seconds)
 
     // React Snippet - migrated
     val myAkkaActor = ActorDSL.actor(new ActWithStash {
@@ -111,7 +111,7 @@ class ReactReceive extends PartestSuite with ActorSuite {
     })
     myAkkaActor ! 1
 
-    Await.ready(finishedRS.future, 5 seconds)
+    Await.ready(finishedRS.future, 20 seconds)
     // Starting composition test
     testConsecutive()
     assertPartest()
