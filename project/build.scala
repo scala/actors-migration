@@ -11,7 +11,7 @@ object MigraitonDef extends Build {
   val actorsMigration = (Project("scala-actors-migration", file(".")) settings (
     organization := "org.scala-lang",
     name := "scala-actors-migration",
-    version <<= scalaVersion.identity,
+    version := "1.0.0-RC2",
     scalaVersion := "2.10.0-RC2",
     parallelExecution in Test := true,
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
