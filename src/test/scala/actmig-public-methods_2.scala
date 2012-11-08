@@ -39,7 +39,6 @@ class PublicMethods2 extends PartestSuite with ActorSuite {
         loop {
           react {
             case (x: String, time: Long) =>
-              System.out.println("Where did the message go?" + x)
               Thread.sleep(time)
               sender ! (x + " after " + time)
             case "forward" =>

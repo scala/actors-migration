@@ -30,7 +30,7 @@ object MigraitonDef extends Build {
     },
     // Maven central cannot allow other repos.  We're ok here because the artifacts we
     // we use externally are *optional* dependencies.
-    pomIncludeRepository := { x => false },
+    pomIncludeRepository := { _ => false },
     // Maven central wants some extra metadata to keep things 'clean'.
     pomExtra := (
       <licenses>
@@ -42,16 +42,16 @@ object MigraitonDef extends Build {
           <distribution>repo</distribution>
         </license>
       </licenses>
-      <url>http://docs.scala-lang.org/overviews/actor-migration</url>
+      <url>http://vjovanov.github.com/actors-migration</url>
       <scm>
-        <url>git@github.com:scala/actors-migration.git</url>
+        <url>git@github.com:vjovanov/actors-migration.git</url>
         <connection>scm:git:git@github.com:scala/actors-migration.git</connection>
       </scm>
       <developers>
         <developer>
           <id>vjovanov</id>
           <name>Vojin Jovanovic</name>
-          <url>http://vjovanov.com</url>
+          <url>http://www.vjovanov.com</url>
         </developer>
       </developers>))
 
