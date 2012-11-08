@@ -5,7 +5,7 @@
         <div class="container">
           <a class="brand" href="index.html">Scala Actors Migration Kit</a>
           <ul class="nav">
-           <li><a target="_blank" href="http://docs.scala-lang.org/overviews/actors-migration/">Migration Guide</a></li>
+           <li><a target="_blank" href="http://docs.scala-lang.org/overviews/core/actors-migration-guide.html">Migration Guide</a></li>
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
            <li><a target="_blank" href="http://github.com/scala/actors-migration">Code</a></li>
            <li><a target="_blank" href="http://github.com/scala/actors-migration/issues">Bug Tracker</a></li>
