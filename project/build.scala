@@ -62,7 +62,11 @@ object MigraitonDef extends Build {
     site.jekyllSupport() ++
     Seq(
       git.remoteRepo := "git@github.com:vjovanov/actors-migration.git",
-      includeFilter in Jekyll := ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME")))
+      includeFilter in Jekyll := ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME"),
+      // the migration guide goes to scaladoc
+      excludeFilter in Jekyll := ("actors-migration-guide.html")
+    )
+  )
 
   def dependencies(sv: String) = Seq(
     "org.scala-lang" % "scala-actors" % sv,
