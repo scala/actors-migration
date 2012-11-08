@@ -236,7 +236,8 @@ following rule:
 After this change code might not compile. The `receive` method exists in `ActWithStash` and can not be used in the body of the `act` as is. To redirect the compiler to the previous method
 add the type parameter to all `receive` calls in your system. For example:
 
-    receive { case x: Int => "Number" } -> receive[String] { case x: Int => "Number" }
+    receive { case x: Int => "Number" } ->
+      receive[String] { case x: Int => "Number" }
 
 Additionally, to make the code compile, users must add the `override` keyword before the `act` method, and to create
 the empty `receive` method in the code. Method `act` needs to be overriden since its implementation in `ActWithStash` 
@@ -494,13 +495,13 @@ one of the actors terminates abnormally.
    If the system can not be migrated solely with `watch` the user should leave invocations to `link` and `exit(reason)` as is. However since `act()` overrides the `Exit` message the following transformation 
 needs to be applied:
 
-    case Exit(actor, reason) =>
-            println("sorry about your " + reason)
-            ...
+        case Exit(actor, reason) =>
+          println("sorry about your " + reason)
+          ...
 
     should be replaced with
 
-    case t @ Terminated(actorRef) =>
+        case t @ Terminated(actorRef) =>
           println("sorry about your " + t.reason)
           ...
 
