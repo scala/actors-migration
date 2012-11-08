@@ -42,9 +42,9 @@ object MigraitonDef extends Build {
           <distribution>repo</distribution>
         </license>
       </licenses>
-      <url>http://vjovanov.github.com/actors-migration</url>
+      <url>http://scala.github.com/actors-migration</url>
       <scm>
-        <url>git@github.com:vjovanov/actors-migration.git</url>
+        <url>git@github.com:scala/actors-migration.git</url>
         <connection>scm:git:git@github.com:scala/actors-migration.git</connection>
       </scm>
       <developers>
@@ -61,7 +61,7 @@ object MigraitonDef extends Build {
     site.includeScaladoc() ++
     site.jekyllSupport() ++
     Seq(
-      git.remoteRepo := "git@github.com:vjovanov/actors-migration.git",
+      git.remoteRepo := "git@github.com:scala/actors-migration.git",
       includeFilter in Jekyll := ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME"),
       // the migration guide goes to scaladoc
       excludeFilter in Jekyll := ("actors-migration-guide.html")
