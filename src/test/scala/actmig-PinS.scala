@@ -8,7 +8,9 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Promise, Await }
 
 import scala.actors.Actor._
-
+/*
+ * Examples from the book Programming in Scala
+ */
 class PinS extends PartestSuite with ActorSuite {
   val checkFile = "actmig-PinS"
   import org.junit._

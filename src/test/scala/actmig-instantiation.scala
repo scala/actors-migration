@@ -18,7 +18,12 @@ class Instatiation extends PartestSuite with ActorSuite {
 
   class TestActWithStash extends ActWithStash {
 
-    def receive = { case v: Int => append(v); latch.countDown() }
+    def receive = { 
+      case v: Int => append(v);
+      latch.countDown()
+      case 'stop =>
+        context.stop(self)
+    }
 
   }
 

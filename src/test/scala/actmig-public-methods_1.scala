@@ -63,7 +63,9 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
     respActor ! "bang"
 
     implicit val timeout = Timeout(36500 days)
+
     {
+      implicit val timeout = Timeout(36500 days)
       val msg = ("bang qmark", 0L)
       val res = respActor ? msg
       append(Await.result(res, Duration.Inf).toString)
@@ -73,12 +75,12 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
     {
       val msg = ("bang qmark", 1L)
       val res = {
-        respActor ? msg
+        val fut = respActor.?(msg)(Timeout(5000 milliseconds))
+        val optFut = fut map (Some(_)) recover { case _ => None }
+        Await.result(optFut, Duration.Inf)
       }
 
-      val promise = Promise[Option[Any]]()
-      res.onComplete(v => promise.success(v.toOption))
-      append(Await.result(promise.future, Duration.Inf).toString)
+      append(res.toString)
 
       latch.countDown()
     }
@@ -90,7 +92,7 @@ class PublicMethods1 extends PartestSuite with ActorSuite {
         val optFut = fut map (Some(_)) recover { case _ => None }
         Await.result(optFut, Duration.Inf)
       }
-      append(res)
+      append(res.toString)
       latch.countDown()
     }
 
