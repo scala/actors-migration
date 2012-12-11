@@ -11,8 +11,8 @@ object MigraitonDef extends Build {
   val actorsMigration = (Project("scala-actors-migration", file(".")) settings (
     organization := "org.scala-lang",
     name := "scala-actors-migration",
-    version := "1.0.0-RC3",
-    scalaVersion := "2.10.0-RC3",
+    version := "1.0.0-RC4",
+    scalaVersion := "2.10.0-RC4",
     parallelExecution in Test := true,
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
