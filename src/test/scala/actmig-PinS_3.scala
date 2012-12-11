@@ -156,7 +156,6 @@ class PinS3 extends PartestSuite with ActorSuite {
                   // only the following send leads to output
                   intActor ! 12
                   context.unbecome()
-                  context.unbecome()
                   context.stop(self)
                 case m =>
                   println("Stash 1 " + m)
