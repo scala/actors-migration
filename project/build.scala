@@ -5,17 +5,21 @@ import com.typesafe.sbt.SbtSite.SiteKeys._
 import com.typesafe.sbt.site.JekyllSupport.Jekyll
 import com.typesafe.sbt.SbtGhPages.ghpages
 import com.typesafe.sbt.SbtGit.git
+import de.johoop.jacoco4sbt._
+import JacocoPlugin._
 
 object MigraitonDef extends Build {
 
   val actorsMigration = (Project("scala-actors-migration", file(".")) settings (
     organization := "org.scala-lang",
     name := "scala-actors-migration",
-    version := "1.0.0-RC5",
-    scalaVersion := "2.10.0-RC5",
+    version := "1.0.0",
+    scalaVersion := "2.10.0",
+    // scalaBinaryVersion <<= scalaVersion,
     parallelExecution in Test := true,
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
+    resolvers += "Sonatype Release" at "https://oss.sonatype.org/content/repositories/releases",
     libraryDependencies <++= scalaVersion apply dependencies) settings (publishSettings: _*) settings (websiteSettings: _*))
 
   def publishSettings: Seq[Setting[_]] = Seq(
