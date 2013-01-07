@@ -9,9 +9,5 @@ You can find the library on the maven central repository.
 
     groupId: org.scala-lang
     artifactId:  scala-actors-migration_${scala-version}
-    version: 1.0
-
-Note: 
-* Release can be found on maven central, or for the impatient:  [Sonatype's OSSRH repository](https://oss.sonatype.org/content/groups/public/).
-* Snapshots can be found on [Sonatype's OSSRH snapshot repository](https://oss.sonatype.org/content/groups/public).
+    version: 1.0.0
 
