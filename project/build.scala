@@ -14,8 +14,8 @@ object MigraitonDef extends Build {
     organization := "org.scala-lang",
     name := "scala-actors-migration",
     version := "1.0.0",
-    scalaVersion := "2.10.0",
-    // scalaBinaryVersion <<= scalaVersion,
+    scalaVersion := "2.11.0-M4",
+    scalaBinaryVersion <<= scalaVersion,
     parallelExecution in Test := true,
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
@@ -23,6 +23,7 @@ object MigraitonDef extends Build {
     libraryDependencies <++= scalaVersion apply dependencies) settings (publishSettings: _*) settings (websiteSettings: _*))
 
   def publishSettings: Seq[Setting[_]] = Seq(
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     // If we want on maven central, we need to be in maven style.
     publishMavenStyle := true,
     publishArtifact in Test := false,
