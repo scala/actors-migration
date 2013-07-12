@@ -1,1 +1,0 @@
-seq(jacoco.settings : _*)

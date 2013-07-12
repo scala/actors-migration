@@ -14,15 +14,18 @@ object MigraitonDef extends Build {
     organization := "org.scala-lang",
     name := "scala-actors-migration",
     version := "1.0.0",
-    scalaVersion := "2.11.0-M4",
+    scalaVersion := "2.10.2-SNAPSHOT",
     scalaBinaryVersion <<= scalaVersion,
     parallelExecution in Test := true,
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
     resolvers += "Sonatype Snapshots repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
     resolvers += "Sonatype Release" at "https://oss.sonatype.org/content/repositories/releases",
-    libraryDependencies <++= scalaVersion apply dependencies) settings (publishSettings: _*) settings (websiteSettings: _*))
+    libraryDependencies <++= scalaVersion apply dependencies
+  ) settings (publishSettings: _*) settings (websiteSettings: _*) settings (jacocoSettings: _*))
 
-  def publishSettings: Seq[Setting[_]] = Seq(
+  lazy val jacocoSettings: Seq[Setting[_]] = Seq(jacoco.settings: _*)
+
+  lazy val publishSettings: Seq[Setting[_]] = Seq(
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     // If we want on maven central, we need to be in maven style.
     publishMavenStyle := true,
@@ -60,7 +63,7 @@ object MigraitonDef extends Build {
         </developer>
       </developers>))
 
-  def websiteSettings: Seq[Setting[_]] = (
+  lazy val websiteSettings: Seq[Setting[_]] = (
     site.settings ++
     ghpages.settings ++
     site.includeScaladoc() ++
