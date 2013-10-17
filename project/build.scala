@@ -14,7 +14,7 @@ object MigraitonDef extends Build {
     organization := "org.scala-lang",
     name := "scala-actors-migration",
     version := "1.0.0",
-    scalaVersion := "2.11.0-SNAPSHOT",
+    scalaVersion := "2.11.0-M6",
     scalaBinaryVersion <<= scalaVersion,
     parallelExecution in Test := true,
     resolvers += "junit interface repo" at "https://repository.jboss.org/nexus/content/repositories/scala-tools-releases",
