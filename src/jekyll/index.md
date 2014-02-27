@@ -9,5 +9,5 @@ You can find the library on the maven central repository.
 
     groupId: org.scala-lang
     artifactId:  scala-actors-migration_${scala-version}
-    version: 1.0.0
+    version: 1.1.0
 

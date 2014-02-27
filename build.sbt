@@ -1,4 +1,5 @@
 // core build/testing/publishing -- does not need any sbt plugins
+import VersionKeys._
 
 name                 := "scala-actors-migration"
 
@@ -13,14 +14,15 @@ organizationHomepage := Some(url("http://www.scala-lang.org"))
 scmInfo              := Some(ScmInfo(url("https://github.com/scala/actors-migration.git"),"git://github.com/scala/actors-migration.git"))
 
 // on release, set version using sbt commands -- for nightlies, default should be -SNAPSHOT
-version              := "1.0.0-SNAPSHOT"
+version              := "1.1.0-SNAPSHOT"
 
-scalaVersion         := "2.11.0-M8"
+scalaVersion         := "2.11.0-RC1"
+
+continuationsVersion := "1.0.0"
 
 libraryDependencies  += "org.scala-lang" % "scala-actors"      % scalaVersion.value
 
-// for continuations library
-libraryDependencies  += "org.scala-lang" % "scala-library-all" % scalaVersion.value
+libraryDependencies  += "org.scala-lang.plugins" %% "scala-continuations-library" % continuationsVersion.value
 
 // testing
 libraryDependencies  += "junit"          % "junit"             % "4.10" % "test"
