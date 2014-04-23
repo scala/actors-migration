@@ -2,4 +2,4 @@ For information on the Actors Migration Kit please refer to the [project page](h
 
 ## Development notes
 
-To build this project you will need the [SBT 0.12.x](http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html).
+To build this project you will need the latest [SBT](http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html).
